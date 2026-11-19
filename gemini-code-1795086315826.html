@@ -1,0 +1,1610 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JALA NU — Sistem Informasi & Laporan Pondok Pesantren Nurul Ulum Bantul</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    @media print {
+      .no-print { display: none !important; }
+      body { background-color: #FFFFFF !important; }
+    }
+  </style>
+</head>
+<body class="bg-[#F2F7FC] text-[#07172C] antialiased">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    const ENTITAS_RESMI = [
+      'Dewan Pengawas',
+      'Ustadz Ustadzah',
+      'OSIM',
+      'Komplek Mbah Zainuri',
+      'Komplek Mbah Achmadi',
+      'Komplek Mbah Romlah',
+      'Komplek Mbah Wasirah',
+    ];
+
+    const KOMPLEK_ASRAMA = [
+      'Komplek Mbah Zainuri',
+      'Komplek Mbah Achmadi',
+      'Komplek Mbah Romlah',
+      'Komplek Mbah Wasirah',
+    ];
+
+    const JENJANG_LIST = [
+      'MTs Nurul Ulum',
+      'Pondok Putra',
+      'Pondok Putri',
+    ];
+
+    const STATUS_SANTRI = [
+      'Calon Pendaftar (Leads)',
+      'Terverifikasi',
+      'Daftar Ulang',
+      'Santri Aktif',
+    ];
+
+    const PERIODE_LAPORAN = ['Harian', 'Mingguan', 'Bulanan'];
+
+    const STATUS_VERIFIKASI = [
+      'Menunggu Review',
+      'Terverifikasi',
+      'Perlu Revisi',
+    ];
+
+    const TREN_PENDAFTARAN = [
+      { periode: 'Gel. 1 Awal', pendaftar: 18, daftarUlang: 11 },
+      { periode: 'Gel. 1 Lanjut', pendaftar: 27, daftarUlang: 19 },
+      { periode: 'Gel. 2 Awal', pendaftar: 39, daftarUlang: 29 },
+      { periode: 'Gel. 2 Puncak', pendaftar: 54, daftarUlang: 42 },
+      { periode: 'Proyeksi Aktif', pendaftar: 68, daftarUlang: 55 },
+    ];
+
+    const INITIAL_SANTRI = [
+      {
+        id: 'SNT-001',
+        nama: 'Ahmad Fauzan Pratama',
+        status: 'Daftar Ulang',
+        jenjang: 'MTs Nurul Ulum',
+        komplek: 'Komplek Mbah Zainuri',
+        asalDaerah: 'Kretek, Bantul',
+        waliNama: 'H. Suparman',
+        waliWa: '081234567801',
+        tanggalDaftar: '2026-11-05',
+        catatan: 'Berkas lengkap, konfirmasi pelunasan daftar ulang pekan ini.',
+      },
+      {
+        id: 'SNT-002',
+        nama: 'Aisyah Rahmawati',
+        status: 'Calon Pendaftar (Leads)',
+        jenjang: 'Pondok Putri',
+        komplek: 'Komplek Mbah Romlah',
+        asalDaerah: 'Jetis, Bantul',
+        waliNama: 'Ibu Nurhayati',
+        waliWa: '081234567802',
+        tanggalDaftar: '2026-11-12',
+        catatan: 'Menanyakan program tahfidz dan jadwal survei komplek.',
+      },
+      {
+        id: 'SNT-003',
+        nama: 'Muhammad Rizky Aditya',
+        status: 'Terverifikasi',
+        jenjang: 'Pondok Putra',
+        komplek: 'Komplek Mbah Achmadi',
+        asalDaerah: 'Sewon, Bantul',
+        waliNama: 'Bapak Hendra',
+        waliWa: '081234567803',
+        tanggalDaftar: '2026-11-10',
+        catatan: 'Data diverifikasi panitia, siap diarahkan ke daftar ulang.',
+      },
+      {
+        id: 'SNT-004',
+        nama: 'Nabila Zahra Safitri',
+        status: 'Santri Aktif',
+        jenjang: 'Pondok Putri',
+        komplek: 'Komplek Mbah Wasirah',
+        asalDaerah: 'Pundong, Bantul',
+        waliNama: 'Bapak Wahyudi',
+        waliWa: '081234567804',
+        tanggalDaftar: '2026-07-14',
+        catatan: 'Aktif mengikuti kegiatan komplek dan madrasah.',
+      },
+      {
+        id: 'SNT-005',
+        nama: 'Farhan Maulana',
+        status: 'Calon Pendaftar (Leads)',
+        jenjang: 'MTs Nurul Ulum',
+        komplek: 'Komplek Mbah Zainuri',
+        asalDaerah: 'Sanden, Bantul',
+        waliNama: 'Ibu Sri Lestari',
+        waliWa: '081234567805',
+        tanggalDaftar: '2026-11-16',
+        catatan: 'Kontak masuk dari kampanye media sosial PPDB.',
+      },
+    ];
+
+    const INITIAL_LAPORAN = [
+      {
+        id: 'LPR-101',
+        entitas: 'Dewan Pengawas',
+        periode: 'Mingguan',
+        tanggal: '2026-11-18',
+        judul: 'Monitoring Tata Tertib, Kepatuhan Absensi & Tindak Lanjut Santri Baru',
+        hadir: 185,
+        izinSakit: 6,
+        kegiatan: 'Audit ringan ketertiban piket komplek dan verifikasi alur administrasi santri baru.',
+        kendala: 'Beberapa catatan mingguan unit perlu diseragamkan format waktunya.',
+        tindakLanjut: 'Penetapan tenggat setor laporan setiap Kamis sore sebelum rekap pimpinan.',
+        statusVerifikasi: 'Terverifikasi',
+        evaluasiPengawas: 'Bagus, lanjutkan pemantauan konsistensi follow-up calon santri.',
+      },
+      {
+        id: 'LPR-102',
+        entitas: 'Ustadz Ustadzah',
+        periode: 'Harian',
+        tanggal: '2026-11-18',
+        judul: 'KBM Kitab, Evaluasi Capaian Hafalan & Pendampingan Akademik',
+        hadir: 178,
+        izinSakit: 13,
+        kegiatan: 'Pengajian rutin, setoran hafalan, dan pembinaan intensif kelas akhir.',
+        kendala: 'Ada santri pindahan baru yang perlu penyesuaian jam bimbingan.',
+        tindakLanjut: 'Jadwal pendampingan tambahan sore hari untuk santri baru.',
+        statusVerifikasi: 'Terverifikasi',
+        evaluasiPengawas: 'Terpantau rapi dan mendukung daya tarik akademik wali santri.',
+      },
+      {
+        id: 'LPR-103',
+        entitas: 'OSIM',
+        periode: 'Mingguan',
+        tanggal: '2026-11-17',
+        judul: 'Dokumentasi Kegiatan Santri, Kebersihan Lingkungan & Konten Positif',
+        hadir: 182,
+        izinSakit: 9,
+        kegiatan: 'Koordinasi kebersihan area pondok serta pengambilan stok dokumentasi kegiatan.',
+        kendala: 'Butuh penjadwalan pengambilan video lebih awal saat acara berlangsung.',
+        tindakLanjut: 'Sinkronisasi kalender kegiatan mingguan bersama tim publikasi/marketing.',
+        statusVerifikasi: 'Menunggu Review',
+        evaluasiPengawas: '',
+      },
+      {
+        id: 'LPR-104',
+        entitas: 'Komplek Mbah Zainuri',
+        periode: 'Harian',
+        tanggal: '2026-11-18',
+        judul: 'Absensi Kamar, Piket Malam & Kesiapan Slot Kamar Santri Baru',
+        hadir: 46,
+        izinSakit: 2,
+        kegiatan: 'Apel malam, pengecekan kebersihan kamar, dan pemetaan kuota kamar tersedia.',
+        kendala: 'Satu kamar perlu perbaikan engsel pintu.',
+        tindakLanjut: 'Ajukan perbaikan ringan dan siapkan 4 bed siap huni untuk pendaftar baru.',
+        statusVerifikasi: 'Terverifikasi',
+        evaluasiPengawas: 'Kesiapan kamar santri baru sangat membantu proses pendaftaran.',
+      },
+      {
+        id: 'LPR-105',
+        entitas: 'Komplek Mbah Achmadi',
+        periode: 'Harian',
+        tanggal: '2026-11-18',
+        judul: 'Laporan Kehadiran Santri Komplek & Pendampingan Ibadah Rutin',
+        hadir: 48,
+        izinSakit: 1,
+        kegiatan: 'Pendampingan jamaah, murojaah bersama, dan ketertiban jam belajar.',
+        kendala: 'Santri sakit 1 orang sudah ditangani dan dikabarkan ke wali.',
+        tindakLanjut: 'Pantau kondisi kesehatan harian dan laporkan pemulihannya.',
+        statusVerifikasi: 'Menunggu Review',
+        evaluasiPengawas: '',
+      },
+      {
+        id: 'LPR-106',
+        entitas: 'Komplek Mbah Romlah',
+        periode: 'Mingguan',
+        tanggal: '2026-11-17',
+        judul: 'Rekap Pekan Komplek Putri, Keamanan & Sambutan Tamu Wali Santri',
+        hadir: 45,
+        izinSakit: 2,
+        kegiatan: 'Evaluasi kebersihan komplek putri dan pendampingan kunjungan wali calon santri.',
+        kendala: 'Perlu tambahan papan petunjuk arah di area komplek.',
+        tindakLanjut: 'Koordinasi pemasangan penunjuk arah agar kunjungan wali santri lebih nyaman.',
+        statusVerifikasi: 'Perlu Revisi',
+        evaluasiPengawas: 'Mohon lengkapi rincian jumlah slot kamar kosong pekan depan.',
+      },
+      {
+        id: 'LPR-107',
+        entitas: 'Komplek Mbah Wasirah',
+        periode: 'Mingguan',
+        tanggal: '2026-11-17',
+        judul: 'Laporan Mingguan Santri Komplek, Ketertiban & Kesiapan Penerimaan',
+        hadir: 42,
+        izinSakit: 1,
+        kegiatan: 'Pembinaan karakter harian, kerja bakti lingkungan, dan rekap absensi pekanan.',
+        kendala: 'Nihil kendala signifikan.',
+        tindakLanjut: 'Pertahankan konsistensi laporan dan perbarui ketersediaan kamar.',
+        statusVerifikasi: 'Terverifikasi',
+        evaluasiPengawas: 'Konsisten dan tertib.',
+      },
+    ];
+
+    function formatWaLink(phone, namaSantri, status, komplek) {
+      const clean = String(phone || '').replace(/\D/g, '');
+      const normalized = clean.startsWith('0')
+        ? `62${clean.slice(1)}`
+        : clean.startsWith('62')
+          ? clean
+          : `62${clean}`;
+
+      const text = `Assalamu'alaikum Wr. Wb. Yth. Wali Santri dari *${namaSantri}*. Kami dari tim pendaftaran & informasi *JALA NU — Pondok Pesantren Nurul Ulum Bantul* ingin menginformasikan progres terkini (Status: *${status}*, Penempatan: *${komplek}*). Apakah ada informasi atau jadwal kunjungan/daftar ulang yang dapat kami bantu? Terima kasih.`;
+
+      return `https://wa.me/${normalized}?text=${encodeURIComponent(text)}`;
+    }
+
+    function getStatusBadgeClass(status) {
+      switch (status) {
+        case 'Santri Aktif':
+          return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+        case 'Daftar Ulang':
+          return 'bg-sky-100 text-sky-800 border-sky-200';
+        case 'Terverifikasi':
+          return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+        default:
+          return 'bg-amber-100 text-amber-800 border-amber-200';
+      }
+    }
+
+    function getVerifBadgeClass(status) {
+      switch (status) {
+        case 'Terverifikasi':
+          return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+        case 'Perlu Revisi':
+          return 'bg-rose-100 text-rose-800 border-rose-200';
+        default:
+          return 'bg-amber-100 text-amber-800 border-amber-200';
+      }
+    }
+
+    function exportToCsv(filename, rows) {
+      if (!rows.length) return;
+      const headers = Object.keys(rows[0]);
+      const csvContent = [
+        headers.join(','),
+        ...rows.map((row) =>
+          headers
+            .map((field) => {
+              const val = row[field] ?? '';
+              const escaped = String(val).replace(/"/g, '""');
+              return `"${escaped}"`;
+            })
+            .join(',')
+        ),
+      ].join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    function App() {
+      const [activeTab, setActiveTab] = useState('dashboard');
+      const [activeEntitasFilter, setActiveEntitasFilter] = useState('Semua');
+
+      const [santriList, setSantriList] = useState(() => {
+        try {
+          const saved = localStorage.getItem('jala_nu_single_santri_v1');
+          return saved ? JSON.parse(saved) : INITIAL_SANTRI;
+        } catch {
+          return INITIAL_SANTRI;
+        }
+      });
+
+      const [laporanList, setLaporanList] = useState(() => {
+        try {
+          const saved = localStorage.getItem('jala_nu_single_laporan_v1');
+          return saved ? JSON.parse(saved) : INITIAL_LAPORAN;
+        } catch {
+          return INITIAL_LAPORAN;
+        }
+      });
+
+      useEffect(() => {
+        try {
+          localStorage.setItem('jala_nu_single_santri_v1', JSON.stringify(santriList));
+        } catch {}
+      }, [santriList]);
+
+      useEffect(() => {
+        try {
+          localStorage.setItem('jala_nu_single_laporan_v1', JSON.stringify(laporanList));
+        } catch {}
+      }, [laporanList]);
+
+      const [searchSantri, setSearchSantri] = useState('');
+      const [filterStatusSantri, setFilterStatusSantri] = useState('Semua');
+      const [filterKomplekSantri, setFilterKomplekSantri] = useState('Semua');
+
+      const [formSantri, setFormSantri] = useState({
+        nama: '',
+        status: 'Calon Pendaftar (Leads)',
+        jenjang: 'MTs Nurul Ulum',
+        komplek: 'Komplek Mbah Zainuri',
+        asalDaerah: '',
+        waliNama: '',
+        waliWa: '',
+        tanggalDaftar: new Date().toISOString().slice(0, 10),
+        catatan: '',
+      });
+
+      const [searchLaporan, setSearchLaporan] = useState('');
+      const [filterPeriode, setFilterPeriode] = useState('Semua');
+      const [filterVerif, setFilterVerif] = useState('Semua');
+
+      const [formLaporan, setFormLaporan] = useState({
+        entitas: 'Komplek Mbah Zainuri',
+        periode: 'Harian',
+        tanggal: new Date().toISOString().slice(0, 10),
+        judul: '',
+        hadir: '',
+        izinSakit: '0',
+        kegiatan: '',
+        kendala: '',
+        tindakLanjut: '',
+        statusVerifikasi: 'Menunggu Review',
+        evaluasiPengawas: '',
+      });
+
+      const stats = useMemo(() => {
+        const santriAktif = santriList.filter((s) => s.status === 'Santri Aktif').length;
+        const calonPendaftar = santriList.filter((s) => s.status === 'Calon Pendaftar (Leads)').length;
+        const terverifikasi = santriList.filter((s) => s.status === 'Terverifikasi').length;
+        const daftarUlang = santriList.filter((s) => s.status === 'Daftar Ulang').length;
+        const totalPipeline = calonPendaftar + terverifikasi + daftarUlang;
+        const rasioKonversi =
+          totalPipeline > 0
+            ? Math.round(((terverifikasi + daftarUlang) / totalPipeline) * 100)
+            : 0;
+
+        const entitasTerlapor = new Set(laporanList.map((l) => l.entitas)).size;
+        const kepatuhanPersen = Math.round((entitasTerlapor / ENTITAS_RESMI.length) * 100);
+        const laporanTerverifikasi = laporanList.filter(
+          (l) => l.statusVerifikasi === 'Terverifikasi'
+        ).length;
+
+        return {
+          santriAktif,
+          calonPendaftar,
+          terverifikasi,
+          daftarUlang,
+          totalPipeline,
+          rasioKonversi,
+          entitasTerlapor,
+          kepatuhanPersen,
+          laporanTerverifikasi,
+        };
+      }, [santriList, laporanList]);
+
+      const filteredSantri = useMemo(() => {
+        return santriList.filter((item) => {
+          const q = searchSantri.trim().toLowerCase();
+          const matchQuery =
+            !q ||
+            item.nama.toLowerCase().includes(q) ||
+            item.asalDaerah.toLowerCase().includes(q) ||
+            item.waliNama.toLowerCase().includes(q) ||
+            item.id.toLowerCase().includes(q);
+          const matchStatus =
+            filterStatusSantri === 'Semua' || item.status === filterStatusSantri;
+          const matchKomplek =
+            filterKomplekSantri === 'Semua' || item.komplek === filterKomplekSantri;
+          const matchTopEntitas =
+            activeEntitasFilter === 'Semua' ||
+            !KOMPLEK_ASRAMA.includes(activeEntitasFilter) ||
+            item.komplek === activeEntitasFilter;
+
+          return matchQuery && matchStatus && matchKomplek && matchTopEntitas;
+        });
+      }, [
+        santriList,
+        searchSantri,
+        filterStatusSantri,
+        filterKomplekSantri,
+        activeEntitasFilter,
+      ]);
+
+      const filteredLaporan = useMemo(() => {
+        return laporanList.filter((item) => {
+          const q = searchLaporan.trim().toLowerCase();
+          const matchQuery =
+            !q ||
+            item.judul.toLowerCase().includes(q) ||
+            item.entitas.toLowerCase().includes(q) ||
+            item.kegiatan.toLowerCase().includes(q) ||
+            item.tindakLanjut.toLowerCase().includes(q);
+          const matchEntitas =
+            activeEntitasFilter === 'Semua' || item.entitas === activeEntitasFilter;
+          const matchPeriode =
+            filterPeriode === 'Semua' || item.periode === filterPeriode;
+          const matchVerif =
+            filterVerif === 'Semua' || item.statusVerifikasi === filterVerif;
+
+          return matchQuery && matchEntitas && matchPeriode && matchVerif;
+        });
+      }, [
+        laporanList,
+        searchLaporan,
+        activeEntitasFilter,
+        filterPeriode,
+        filterVerif,
+      ]);
+
+      function handleAddSantri(e) {
+        e.preventDefault();
+        if (!formSantri.nama.trim()) return;
+
+        const nextNumber = santriList.length + 1;
+        const newItem = {
+          id: `SNT-${String(nextNumber).padStart(3, '0')}`,
+          ...formSantri,
+          nama: formSantri.nama.trim(),
+          asalDaerah: formSantri.asalDaerah.trim() || 'Bantul, DIY',
+          waliNama: formSantri.waliNama.trim() || 'Wali Santri',
+          waliWa: formSantri.waliWa.trim() || '081200000000',
+        };
+
+        setSantriList((prev) => [newItem, ...prev]);
+        setFormSantri({
+          nama: '',
+          status: 'Calon Pendaftar (Leads)',
+          jenjang: 'MTs Nurul Ulum',
+          komplek: 'Komplek Mbah Zainuri',
+          asalDaerah: '',
+          waliNama: '',
+          waliWa: '',
+          tanggalDaftar: new Date().toISOString().slice(0, 10),
+          catatan: '',
+        });
+      }
+
+      function handleChangeSantriStatus(id, nextStatus) {
+        setSantriList((prev) =>
+          prev.map((item) => (item.id === id ? { ...item, status: nextStatus } : item))
+        );
+      }
+
+      function handleDeleteSantri(id) {
+        setSantriList((prev) => prev.filter((item) => item.id !== id));
+      }
+
+      function handleAddLaporan(e) {
+        e.preventDefault();
+        if (!formLaporan.judul.trim()) return;
+
+        const nextNum = 100 + laporanList.length + 1;
+        const newLaporan = {
+          id: `LPR-${nextNum}`,
+          ...formLaporan,
+          judul: formLaporan.judul.trim(),
+          hadir: Number(formLaporan.hadir) || 0,
+          izinSakit: Number(formLaporan.izinSakit) || 0,
+          kegiatan: formLaporan.kegiatan.trim() || 'Kegiatan rutin berjalan sesuai agenda.',
+          kendala: formLaporan.kendala.trim() || 'Tidak ada kendala berarti.',
+          tindakLanjut: formLaporan.tindakLanjut.trim() || 'Lanjutkan pemantauan rutin.',
+        };
+
+        setLaporanList((prev) => [newLaporan, ...prev]);
+        setFormLaporan((prev) => ({
+          ...prev,
+          judul: '',
+          hadir: '',
+          izinSakit: '0',
+          kegiatan: '',
+          kendala: '',
+          tindakLanjut: '',
+          evaluasiPengawas: '',
+        }));
+      }
+
+      function handleUpdateVerif(id, statusVerifikasi, evaluasiPengawas) {
+        setLaporanList((prev) =>
+          prev.map((item) =>
+            item.id === id
+              ? {
+                  ...item,
+                  statusVerifikasi,
+                  evaluasiPengawas:
+                    evaluasiPengawas !== undefined ? evaluasiPengawas : item.evaluasiPengawas,
+                }
+              : item
+          )
+        );
+      }
+
+      const maxTrenVal = Math.max(...TREN_PENDAFTARAN.map((t) => t.pendaftar), 1);
+
+      return (
+        <div className="min-h-screen bg-[#F2F7FC] text-[#07172C]">
+          <header className="no-print sticky top-0 z-30 bg-gradient-to-r from-[#07172C] via-[#0F294A] to-[#0B3A66] text-white shadow-lg border-b border-sky-400/20">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xl font-extrabold tracking-tight text-white">
+                    JALA NU
+                  </span>
+                  <span className="px-2 py-0.5 text-[11px] font-bold rounded-full bg-amber-400 text-[#07172C] uppercase tracking-wider">
+                    PPDB & Laporan Terpadu
+                  </span>
+                </div>
+                <p className="text-xs text-sky-200">
+                  Jaringan Administrasi, Laporan & Aspirasi • Pondok Pesantren Nurul Ulum Bantul
+                </p>
+              </div>
+
+              <nav className="flex items-center gap-1.5 bg-[#07172C]/60 p-1 rounded-xl border border-white/10 overflow-x-auto">
+                {[
+                  ['dashboard', 'Dashboard'],
+                  ['santri', 'Santri & PPDB'],
+                  ['laporan', 'Laporan 7 Entitas'],
+                  ['rekap', 'Rekap & Cetak'],
+                ].map(([key, label]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setActiveTab(key)}
+                    className={`px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition ${
+                      activeTab === key
+                        ? 'bg-[#0EA5E9] text-white shadow'
+                        : 'text-sky-100 hover:bg-white/10'
+                    }`}
+                  >
+                    {label}
+                    {key === 'santri' && (
+                      <span className="ml-1.5 px-1.5 py-0.5 text-[11px] font-bold rounded-full bg-amber-400 text-[#07172C]">
+                        {stats.totalPipeline}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </nav>
+            </div>
+
+            <div className="bg-[#061222]/90 border-t border-white/10 px-4 sm:px-6 py-2">
+              <div className="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto pb-0.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-amber-300 shrink-0">
+                  Entitas:
+                </span>
+                {['Semua', ...ENTITAS_RESMI].map((ent) => {
+                  const active = activeEntitasFilter === ent;
+                  return (
+                    <button
+                      key={ent}
+                      type="button"
+                      onClick={() => setActiveEntitasFilter(ent)}
+                      className={`px-2.5 py-1 rounded-md text-xs font-medium whitespace-nowrap transition ${
+                        active
+                          ? 'bg-sky-500 text-white font-semibold shadow-sm'
+                          : 'bg-white/5 text-sky-100 hover:bg-white/15'
+                      }`}
+                    >
+                      {ent}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </header>
+
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+            <section className="no-print rounded-2xl bg-gradient-to-r from-[#0F294A] via-[#0369A1] to-[#0284C7] text-white p-5 sm:p-6 shadow-md border border-sky-300/20 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div className="space-y-1.5">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-400 text-[#07172C] text-xs font-extrabold">
+                  FOKUS UTAMA: PENDAFTARAN SANTRI NAIK KONSISTEN
+                </div>
+                <h1 className="text-lg sm:text-2xl font-extrabold tracking-tight">
+                  Kendali Data Santri, Progres PPDB & Laporan 7 Unit Pondok Pesantren Nurul Ulum
+                </h1>
+                <p className="text-xs sm:text-sm text-sky-100 max-w-3xl">
+                  Pantau calon santri (<span className="font-semibold text-amber-300">Leads</span>), percepat <span className="font-semibold text-amber-300">follow-up</span> wali santri, dan sinkronkan laporan Dewan Pengawas, Ustadz Ustadzah, OSIM, serta Komplek Mbah Zainuri, Mbah Achmadi, Mbah Romlah, dan Mbah Wasirah.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('santri')}
+                  className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-[#07172C] font-extrabold text-xs sm:text-sm shadow transition"
+                >
+                  + Input Calon Santri
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('laporan')}
+                  className="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-semibold text-xs sm:text-sm border border-white/20 transition"
+                >
+                  + Tulis Laporan
+                </button>
+              </div>
+            </section>
+
+            <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+              <div className="bg-white rounded-2xl p-5 border border-[#D8E6F3] shadow-sm">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  Pipeline Pendaftar Baru
+                </span>
+                <div className="mt-3 flex items-baseline gap-2">
+                  <span className="text-3xl font-extrabold text-[#07172C]">
+                    {stats.totalPipeline}
+                  </span>
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                    Konversi {stats.rasioKonversi}%
+                  </span>
+                </div>
+                <p className="mt-1.5 text-xs text-slate-600">
+                  {stats.calonPendaftar} Leads • {stats.terverifikasi} Terverifikasi • {stats.daftarUlang} Daftar Ulang
+                </p>
+              </div>
+
+              <div className="bg-white rounded-2xl p-5 border border-[#D8E6F3] shadow-sm">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  Santri Aktif Tercatat
+                </span>
+                <div className="mt-3 flex items-baseline gap-2">
+                  <span className="text-3xl font-extrabold text-[#0F294A]">
+                    {stats.santriAktif}
+                  </span>
+                  <span className="text-xs font-semibold text-sky-700">
+                    4 Komplek Asrama
+                  </span>
+                </div>
+                <p className="mt-1.5 text-xs text-slate-600">
+                  Terdistribusi di Mbah Zainuri, Mbah Achmadi, Mbah Romlah & Mbah Wasirah
+                </p>
+              </div>
+
+              <div className="bg-white rounded-2xl p-5 border border-[#D8E6F3] shadow-sm">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  Kepatuhan 7 Entitas
+                </span>
+                <div className="mt-3 flex items-baseline gap-2">
+                  <span className="text-3xl font-extrabold text-emerald-700">
+                    {stats.kepatuhanPersen}%
+                  </span>
+                  <span className="text-xs font-semibold text-slate-600">
+                    {stats.entitasTerlapor}/{ENTITAS_RESMI.length} Entitas Lapor
+                  </span>
+                </div>
+                <p className="mt-1.5 text-xs text-slate-600">
+                  Mencakup Dewan Pengawas, Asatidz, OSIM & 4 Komplek
+                </p>
+              </div>
+
+              <div className="bg-white rounded-2xl p-5 border border-[#D8E6F3] shadow-sm">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  Laporan Terverifikasi
+                </span>
+                <div className="mt-3 flex items-baseline gap-2">
+                  <span className="text-3xl font-extrabold text-[#0F294A]">
+                    {stats.laporanTerverifikasi}
+                  </span>
+                  <span className="text-xs font-semibold text-slate-600">
+                    dari {laporanList.length} total laporan
+                  </span>
+                </div>
+                <p className="mt-1.5 text-xs text-slate-600">
+                  Siap direkap untuk evaluasi pimpinan dan rapat rutin
+                </p>
+              </div>
+            </section>
+
+            {activeTab === 'dashboard' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-2 bg-white rounded-2xl p-5 sm:p-6 border border-[#D8E6F3] shadow-sm">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-5">
+                      <div>
+                        <h2 className="text-base sm:text-lg font-extrabold text-[#07172C]">
+                          Tren Kenaikan Pendaftaran Santri (PPDB)
+                        </h2>
+                        <p className="text-xs text-slate-500">
+                          Perbandingan total pendaftar masuk (Biru Laut) vs progres daftar ulang (Amber)
+                        </p>
+                      </div>
+                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold">
+                        Konsisten Naik
+                      </span>
+                    </div>
+
+                    <div className="space-y-4">
+                      {TREN_PENDAFTARAN.map((item) => {
+                        const widthPendaftar = Math.round((item.pendaftar / maxTrenVal) * 100);
+                        const widthDaftarUlang = Math.round((item.daftarUlang / maxTrenVal) * 100);
+                        return (
+                          <div key={item.periode} className="space-y-1.5">
+                            <div className="flex items-center justify-between text-xs font-semibold">
+                              <span className="text-[#07172C]">{item.periode}</span>
+                              <span className="text-slate-600">
+                                Pendaftar: <strong className="text-[#0284C7]">{item.pendaftar}</strong> • Daftar Ulang:{' '}
+                                <strong className="text-amber-600">{item.daftarUlang}</strong>
+                              </span>
+                            </div>
+                            <div className="h-3 w-full rounded-full bg-slate-100 overflow-hidden">
+                              <div
+                                className="h-full rounded-full bg-gradient-to-r from-[#0F294A] to-[#0EA5E9]"
+                                style={{ width: `${widthPendaftar}%` }}
+                              />
+                            </div>
+                            <div className="h-2 w-full rounded-full bg-amber-50 overflow-hidden">
+                              <div
+                                className="h-full rounded-full bg-amber-400"
+                                style={{ width: `${widthDaftarUlang}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#D8E6F3] shadow-sm flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-base sm:text-lg font-extrabold text-[#07172C]">
+                          Follow-Up Cepat Calon Santri
+                        </h2>
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                          Prioritas
+                        </span>
+                      </div>
+
+                      <div className="space-y-3">
+                        {santriList
+                          .filter((s) => s.status !== 'Santri Aktif')
+                          .slice(0, 4)
+                          .map((santri) => (
+                            <div
+                              key={santri.id}
+                              className="p-3 rounded-xl bg-[#F8FBFF] border border-[#DCE8F5] flex items-start justify-between gap-2"
+                            >
+                              <div className="min-w-0">
+                                <p className="text-sm font-bold text-[#07172C] truncate">
+                                  {santri.nama}
+                                </p>
+                                <p className="text-xs text-slate-600 truncate">
+                                  {santri.jenjang} • {santri.komplek}
+                                </p>
+                                <span
+                                  className={`mt-1 inline-block px-2 py-0.5 text-[11px] font-bold rounded-full border ${getStatusBadgeClass(
+                                    santri.status
+                                  )}`}
+                                >
+                                  {santri.status}
+                                </span>
+                              </div>
+                              <a
+                                href={formatWaLink(
+                                  santri.waliWa,
+                                  santri.nama,
+                                  santri.status,
+                                  santri.komplek
+                                )}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="shrink-0 px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition"
+                              >
+                                WA
+                              </a>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('santri')}
+                      className="mt-4 w-full py-2.5 rounded-xl bg-[#0F294A] hover:bg-[#07172C] text-white text-xs font-bold transition"
+                    >
+                      Lihat Semua Database Santri & PPDB →
+                    </button>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#D8E6F3] shadow-sm">
+                  <div className="mb-4">
+                    <h2 className="text-base sm:text-lg font-extrabold text-[#07172C]">
+                      Status Laporan 7 Entitas Resmi Pondok Pesantren Nurul Ulum
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      Klik salah satu kartu entitas untuk langsung membuka dan menyaring laporannya
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                    {ENTITAS_RESMI.map((entitas) => {
+                      const unitReports = laporanList.filter((l) => l.entitas === entitas);
+                      const latest = unitReports[0];
+                      const isSelected = activeEntitasFilter === entitas;
+
+                      return (
+                        <div
+                          key={entitas}
+                          onClick={() => {
+                            setActiveEntitasFilter(isSelected ? 'Semua' : entitas);
+                            setActiveTab('laporan');
+                          }}
+                          className={`cursor-pointer rounded-xl p-4 border transition ${
+                            isSelected
+                              ? 'bg-sky-50 border-[#0284C7] ring-2 ring-[#0284C7]/30'
+                              : 'bg-[#F9FCFF] border-[#DCE8F5] hover:border-[#0284C7]/60'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <span className="text-sm font-extrabold text-[#07172C]">
+                              {entitas}
+                            </span>
+                            <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#0F294A] text-white">
+                              {unitReports.length} Lap
+                            </span>
+                          </div>
+
+                          {latest ? (
+                            <div className="mt-2.5 space-y-1.5">
+                              <p className="text-xs font-semibold text-slate-700 line-clamp-2">
+                                {latest.judul}
+                              </p>
+                              <div className="flex items-center justify-between pt-1">
+                                <span className="text-[11px] text-slate-500">
+                                  {latest.periode} • {latest.tanggal}
+                                </span>
+                                <span
+                                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${getVerifBadgeClass(
+                                    latest.statusVerifikasi
+                                  )}`}
+                                >
+                                  {latest.statusVerifikasi}
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="mt-2.5 text-xs text-amber-700 font-medium">
+                              Belum ada laporan masuk. Klik untuk input.
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'santri' && (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#D8E6F3] shadow-sm h-fit">
+                  <h2 className="text-base sm:text-lg font-extrabold text-[#07172C] mb-4">
+                    Tambah Santri / Calon Santri
+                  </h2>
+
+                  <form onSubmit={handleAddSantri} className="space-y-3.5">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Nama Lengkap Santri / Calon Santri *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formSantri.nama}
+                        onChange={(e) => setFormSantri({ ...formSantri, nama: e.target.value })}
+                        placeholder="Contoh: Muhammad Hasan"
+                        className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          Status Pendaftaran
+                        </label>
+                        <select
+                          value={formSantri.status}
+                          onChange={(e) => setFormSantri({ ...formSantri, status: e.target.value })}
+                          className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                        >
+                          {STATUS_SANTRI.map((st) => (
+                            <option key={st} value={st}>
+                              {st}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          Jenjang / Unit
+                        </label>
+                        <select
+                          value={formSantri.jenjang}
+                          onChange={(e) => setFormSantri({ ...formSantri, jenjang: e.target.value })}
+                          className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                        >
+                          {JENJANG_LIST.map((j) => (
+                            <option key={j} value={j}>
+                              {j}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Penempatan Komplek Asrama
+                      </label>
+                      <select
+                        value={formSantri.komplek}
+                        onChange={(e) => setFormSantri({ ...formSantri, komplek: e.target.value })}
+                        className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                      >
+                        {KOMPLEK_ASRAMA.map((k) => (
+                          <option key={k} value={k}>
+                            {k}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          Asal Daerah / Sekolah
+                        </label>
+                        <input
+                          type="text"
+                          value={formSantri.asalDaerah}
+                          onChange={(e) =>
+                            setFormSantri({ ...formSantri, asalDaerah: e.target.value })
+                          }
+                          placeholder="Contoh: Kretek, Bantul"
+                          className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          Tanggal Input / Daftar
+                        </label>
+                        <input
+                          type="date"
+                          value={formSantri.tanggalDaftar}
+                          onChange={(e) =>
+                            setFormSantri({ ...formSantri, tanggalDaftar: e.target.value })
+                          }
+                          className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          Nama Wali Santri
+                        </label>
+                        <input
+                          type="text"
+                          value={formSantri.waliNama}
+                          onChange={(e) =>
+                            setFormSantri({ ...formSantri, waliNama: e.target.value })
+                          }
+                          placeholder="Contoh: Bapak Ahmad"
+                          className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          No. WhatsApp Wali
+                        </label>
+                        <input
+                          type="text"
+                          value={formSantri.waliWa}
+                          onChange={(e) => setFormSantri({ ...formSantri, waliWa: e.target.value })}
+                          placeholder="0812xxxxxxxx"
+                          className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Catatan Tindak Lanjut / Progres
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={formSantri.catatan}
+                        onChange={(e) => setFormSantri({ ...formSantri, catatan: e.target.value })}
+                        placeholder="Catatan keperluan follow-up, berkas, atau jadwal survei..."
+                        className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="w-full py-2.5 rounded-xl bg-gradient-to-r from-[#0F294A] to-[#0284C7] hover:opacity-95 text-white font-bold text-sm shadow transition"
+                    >
+                      + Simpan Data Santri
+                    </button>
+                  </form>
+                </div>
+
+                <div className="lg:col-span-2 bg-white rounded-2xl p-5 sm:p-6 border border-[#D8E6F3] shadow-sm space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                      <h2 className="text-base sm:text-lg font-extrabold text-[#07172C]">
+                        Database Santri & Calon Santri ({filteredSantri.length})
+                      </h2>
+                      <p className="text-xs text-slate-500">
+                        Perbarui status pendaftaran satu klik dan hubungi wali santri via WhatsApp
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => exportToCsv('jala-nu-santri-ppdb.csv', filteredSantri)}
+                      className="px-3.5 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-[#0284C7] border border-sky-200 text-xs font-bold self-start transition"
+                    >
+                      Ekspor CSV
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <input
+                      type="text"
+                      value={searchSantri}
+                      onChange={(e) => setSearchSantri(e.target.value)}
+                      placeholder="Cari nama, wali, daerah..."
+                      className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                    />
+                    <select
+                      value={filterStatusSantri}
+                      onChange={(e) => setFilterStatusSantri(e.target.value)}
+                      className="px-3 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                    >
+                      <option value="Semua">Semua Status</option>
+                      {STATUS_SANTRI.map((st) => (
+                        <option key={st} value={st}>
+                          {st}
+                        </option>
+                      ))}
+                    </select>
+                    <select
+                      value={filterKomplekSantri}
+                      onChange={(e) => setFilterKomplekSantri(e.target.value)}
+                      className="px-3 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                    >
+                      <option value="Semua">Semua Komplek</option>
+                      {KOMPLEK_ASRAMA.map((k) => (
+                        <option key={k} value={k}>
+                          {k}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-3">
+                    {filteredSantri.length === 0 ? (
+                      <div className="p-8 text-center rounded-xl border border-dashed border-slate-300 text-sm text-slate-500">
+                        Tidak ada data santri yang cocok dengan filter saat ini.
+                      </div>
+                    ) : (
+                      filteredSantri.map((santri) => (
+                        <div
+                          key={santri.id}
+                          className="p-4 rounded-xl bg-[#F9FCFF] border border-[#DCE8F5] flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+                        >
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-xs font-mono font-bold text-slate-500">
+                                {santri.id}
+                              </span>
+                              <h3 className="text-sm sm:text-base font-extrabold text-[#07172C]">
+                                {santri.nama}
+                              </h3>
+                              <span
+                                className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${getStatusBadgeClass(
+                                  santri.status
+                                )}`}
+                              >
+                                {santri.status}
+                              </span>
+                            </div>
+                            <p className="text-xs text-slate-600">
+                              <strong>{santri.jenjang}</strong> • <strong>{santri.komplek}</strong> • Asal: {santri.asalDaerah} • Tgl: {santri.tanggalDaftar}
+                            </p>
+                            <p className="text-xs text-slate-600">
+                              Wali: <strong>{santri.waliNama}</strong> ({santri.waliWa})
+                            </p>
+                            {santri.catatan && (
+                              <p className="text-xs text-slate-700 bg-white px-2.5 py-1.5 rounded-lg border border-slate-200/80">
+                                {santri.catatan}
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="flex flex-wrap sm:flex-nowrap md:flex-col items-stretch sm:items-center md:items-end gap-2 shrink-0">
+                            <select
+                              value={santri.status}
+                              onChange={(e) =>
+                                handleChangeSantriStatus(santri.id, e.target.value)
+                              }
+                              className="px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-[#07172C]"
+                            >
+                              {STATUS_SANTRI.map((st) => (
+                                <option key={st} value={st}>
+                                  {st}
+                                </option>
+                              ))}
+                            </select>
+
+                            <div className="flex items-center gap-2">
+                              <a
+                                href={formatWaLink(
+                                  santri.waliWa,
+                                  santri.nama,
+                                  santri.status,
+                                  santri.komplek
+                                )}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition"
+                              >
+                                Follow-Up WA
+                              </a>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteSantri(santri.id)}
+                                className="px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-semibold transition"
+                              >
+                                Hapus
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'laporan' && (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#D8E6F3] shadow-sm h-fit">
+                  <h2 className="text-base sm:text-lg font-extrabold text-[#07172C] mb-4">
+                    Input Laporan Unit / Komplek
+                  </h2>
+
+                  <form onSubmit={handleAddLaporan} className="space-y-3.5">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Entitas Kepengurusan / Komplek *
+                      </label>
+                      <select
+                        value={formLaporan.entitas}
+                        onChange={(e) =>
+                          setFormLaporan({ ...formLaporan, entitas: e.target.value })
+                        }
+                        className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white font-semibold focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                      >
+                        {ENTITAS_RESMI.map((ent) => (
+                          <option key={ent} value={ent}>
+                            {ent}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          Periode Laporan
+                        </label>
+                        <select
+                          value={formLaporan.periode}
+                          onChange={(e) =>
+                            setFormLaporan({ ...formLaporan, periode: e.target.value })
+                          }
+                          className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                        >
+                          {PERIODE_LAPORAN.map((p) => (
+                            <option key={p} value={p}>
+                              {p}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          Tanggal Laporan
+                        </label>
+                        <input
+                          type="date"
+                          value={formLaporan.tanggal}
+                          onChange={(e) =>
+                            setFormLaporan({ ...formLaporan, tanggal: e.target.value })
+                          }
+                          className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Judul / Topik Utama Laporan *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formLaporan.judul}
+                        onChange={(e) =>
+                          setFormLaporan({ ...formLaporan, judul: e.target.value })
+                        }
+                        placeholder="Contoh: Rekap Absensi, Kegiatan & Kesiapan Santri Baru"
+                        className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          Jumlah Hadir
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={formLaporan.hadir}
+                          onChange={(e) =>
+                            setFormLaporan({ ...formLaporan, hadir: e.target.value })
+                          }
+                          placeholder="0"
+                          className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          Izin / Sakit
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={formLaporan.izinSakit}
+                          onChange={(e) =>
+                            setFormLaporan({ ...formLaporan, izinSakit: e.target.value })
+                          }
+                          placeholder="0"
+                          className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Ringkasan Kegiatan Terlaksana
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={formLaporan.kegiatan}
+                        onChange={(e) =>
+                          setFormLaporan({ ...formLaporan, kegiatan: e.target.value })
+                        }
+                        placeholder="Uraikan program atau kegiatan utama yang telah berjalan..."
+                        className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Kendala / Catatan Lapangan
+                      </label>
+                      <input
+                        type="text"
+                        value={formLaporan.kendala}
+                        onChange={(e) =>
+                          setFormLaporan({ ...formLaporan, kendala: e.target.value })
+                        }
+                        placeholder="Hambatan atau hal yang perlu perhatian..."
+                        className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Rencana Tindak Lanjut
+                      </label>
+                      <input
+                        type="text"
+                        value={formLaporan.tindakLanjut}
+                        onChange={(e) =>
+                          setFormLaporan({ ...formLaporan, tindakLanjut: e.target.value })
+                        }
+                        placeholder="Langkah perbaikan atau target berikutnya..."
+                        className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="w-full py-2.5 rounded-xl bg-gradient-to-r from-[#0F294A] to-[#0284C7] hover:opacity-95 text-white font-bold text-sm shadow transition"
+                    >
+                      + Kirim Laporan ke JALA NU
+                    </button>
+                  </form>
+                </div>
+
+                <div className="lg:col-span-2 bg-white rounded-2xl p-5 sm:p-6 border border-[#D8E6F3] shadow-sm space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                      <h2 className="text-base sm:text-lg font-extrabold text-[#07172C]">
+                        Arsip & Verifikasi Laporan ({filteredLaporan.length})
+                      </h2>
+                      <p className="text-xs text-slate-500">
+                        Filter aktif: <strong>{activeEntitasFilter}</strong> • Dewan Pengawas dapat memverifikasi atau memberi catatan revisi
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => exportToCsv('jala-nu-laporan-7-entitas.csv', filteredLaporan)}
+                      className="px-3.5 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-[#0284C7] border border-sky-200 text-xs font-bold self-start transition"
+                    >
+                      Ekspor CSV
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <input
+                      type="text"
+                      value={searchLaporan}
+                      onChange={(e) => setSearchLaporan(e.target.value)}
+                      placeholder="Cari topik, kegiatan, entitas..."
+                      className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                    />
+                    <select
+                      value={filterPeriode}
+                      onChange={(e) => setFilterPeriode(e.target.value)}
+                      className="px-3 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                    >
+                      <option value="Semua">Semua Periode</option>
+                      {PERIODE_LAPORAN.map((p) => (
+                        <option key={p} value={p}>
+                          {p}
+                        </option>
+                      ))}
+                    </select>
+                    <select
+                      value={filterVerif}
+                      onChange={(e) => setFilterVerif(e.target.value)}
+                      className="px-3 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                    >
+                      <option value="Semua">Semua Status Verifikasi</option>
+                      {STATUS_VERIFIKASI.map((v) => (
+                        <option key={v} value={v}>
+                          {v}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-3.5">
+                    {filteredLaporan.length === 0 ? (
+                      <div className="p-8 text-center rounded-xl border border-dashed border-slate-300 text-sm text-slate-500">
+                        Belum ada laporan yang sesuai dengan filter ini.
+                      </div>
+                    ) : (
+                      filteredLaporan.map((lap) => (
+                        <div
+                          key={lap.id}
+                          className="p-4 rounded-xl bg-[#F9FCFF] border border-[#DCE8F5] space-y-2.5"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="px-2.5 py-0.5 rounded-lg bg-[#0F294A] text-white text-xs font-bold">
+                                {lap.entitas}
+                              </span>
+                              <span className="px-2 py-0.5 rounded-md bg-sky-100 text-sky-800 text-xs font-semibold">
+                                {lap.periode}
+                              </span>
+                              <span className="text-xs text-slate-500">
+                                {lap.tanggal} ({lap.id})
+                              </span>
+                            </div>
+                            <span
+                              className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${getVerifBadgeClass(
+                                lap.statusVerifikasi
+                              )}`}
+                            >
+                              {lap.statusVerifikasi}
+                            </span>
+                          </div>
+
+                          <h3 className="text-sm sm:text-base font-extrabold text-[#07172C]">
+                            {lap.judul}
+                          </h3>
+
+                          <div className="flex flex-wrap gap-3 text-xs font-semibold text-slate-700">
+                            <span>Hadir: <strong className="text-emerald-700">{lap.hadir}</strong></span>
+                            <span>Izin/Sakit: <strong className="text-amber-700">{lap.izinSakit}</strong></span>
+                          </div>
+
+                          <p className="text-xs text-slate-700">
+                            <strong>Kegiatan:</strong> {lap.kegiatan}
+                          </p>
+                          <p className="text-xs text-slate-700">
+                            <strong>Kendala:</strong> {lap.kendala} • <strong>Tindak Lanjut:</strong> {lap.tindakLanjut}
+                          </p>
+
+                          {lap.evaluasiPengawas && (
+                            <div className="p-2.5 rounded-lg bg-emerald-50/80 border border-emerald-200 text-xs text-emerald-900">
+                              <strong>Catatan Dewan Pengawas:</strong> {lap.evaluasiPengawas}
+                            </div>
+                          )}
+
+                          <div className="pt-2 border-t border-slate-200/80 flex flex-col sm:flex-row sm:items-center gap-2">
+                            <select
+                              value={lap.statusVerifikasi}
+                              onChange={(e) =>
+                                handleUpdateVerif(lap.id, e.target.value)
+                              }
+                              className="px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs font-bold text-[#07172C]"
+                            >
+                              {STATUS_VERIFIKASI.map((v) => (
+                                <option key={v} value={v}>
+                                  {v}
+                                </option>
+                              ))}
+                            </select>
+
+                            <input
+                              type="text"
+                              value={lap.evaluasiPengawas || ''}
+                              onChange={(e) =>
+                                handleUpdateVerif(
+                                  lap.id,
+                                  lap.statusVerifikasi,
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Tulis catatan evaluasi Dewan Pengawas..."
+                              className="flex-1 px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-xs focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                            />
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'rekap' && (
+              <div className="bg-white rounded-2xl p-6 sm:p-8 border border-[#D8E6F3] shadow-sm space-y-6">
+                <div className="no-print flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-slate-200">
+                  <div>
+                    <h2 className="text-lg font-extrabold text-[#07172C]">
+                      Rekapitulasi Resmi & Siap Cetak Rapat Pimpinan
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      Ringkasan data pendaftaran santri dan laporan 7 entitas Pondok Pesantren Nurul Ulum Bantul
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => exportToCsv('jala-nu-rekap-laporan.csv', laporanList)}
+                      className="px-3.5 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-[#0284C7] border border-sky-200 text-xs font-bold"
+                    >
+                      Unduh CSV
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => window.print()}
+                      className="px-4 py-2 rounded-xl bg-[#0F294A] hover:bg-[#07172C] text-white text-xs font-bold shadow"
+                    >
+                      Cetak Laporan
+                    </button>
+                  </div>
+                </div>
+
+                <div className="text-center border-b-2 border-[#07172C] pb-4 space-y-1">
+                  <p className="text-xs font-bold uppercase tracking-widest text-[#0284C7]">
+                    SISTEM JALA NU • JARINGAN ADMINISTRASI, LAPORAN & ASPIRASI
+                  </p>
+                  <h3 className="text-xl font-extrabold text-[#07172C] uppercase">
+                    PONDOK PESANTREN NURUL ULUM BANTUL
+                  </h3>
+                  <p className="text-xs text-slate-600">
+                    Rekapitulasi Progres Pendaftaran Santri & Laporan 7 Entitas (Dewan Pengawas, Ustadz Ustadzah, OSIM, Komplek Mbah Zainuri, Komplek Mbah Achmadi, Komplek Mbah Romlah, Komplek Mbah Wasirah)
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                  <div className="p-3.5 rounded-xl bg-[#F2F7FC] border border-[#DCE8F5]">
+                    <p className="text-[11px] font-bold text-slate-500 uppercase">Pipeline PPDB</p>
+                    <p className="text-2xl font-extrabold text-[#07172C]">{stats.totalPipeline}</p>
+                  </div>
+                  <div className="p-3.5 rounded-xl bg-[#F2F7FC] border border-[#DCE8F5]">
+                    <p className="text-[11px] font-bold text-slate-500 uppercase">Santri Aktif</p>
+                    <p className="text-2xl font-extrabold text-[#0284C7]">{stats.santriAktif}</p>
+                  </div>
+                  <div className="p-3.5 rounded-xl bg-[#F2F7FC] border border-[#DCE8F5]">
+                    <p className="text-[11px] font-bold text-slate-500 uppercase">Kepatuhan Unit</p>
+                    <p className="text-2xl font-extrabold text-emerald-700">{stats.kepatuhanPersen}%</p>
+                  </div>
+                  <div className="p-3.5 rounded-xl bg-[#F2F7FC] border border-[#DCE8F5]">
+                    <p className="text-[11px] font-bold text-slate-500 uppercase">Terverifikasi</p>
+                    <p className="text-2xl font-extrabold text-[#0F294A]">{stats.laporanTerverifikasi}</p>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="bg-[#0F294A] text-white">
+                        <th className="p-2.5 rounded-tl-lg">Entitas</th>
+                        <th className="p-2.5">Periode</th>
+                        <th className="p-2.5">Tanggal</th>
+                        <th className="p-2.5">Topik Laporan</th>
+                        <th className="p-2.5">Hadir / Izin</th>
+                        <th className="p-2.5 rounded-tr-lg">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                      {laporanList.map((lap) => (
+                        <tr key={lap.id} className="hover:bg-sky-50/40">
+                          <td className="p-2.5 font-bold text-[#07172C]">{lap.entitas}</td>
+                          <td className="p-2.5">{lap.periode}</td>
+                          <td className="p-2.5">{lap.tanggal}</td>
+                          <td className="p-2.5">{lap.judul}</td>
+                          <td className="p-2.5">
+                            {lap.hadir} / {lap.izinSakit}
+                          </td>
+                          <td className="p-2.5 font-semibold">{lap.statusVerifikasi}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-6 text-center text-xs">
+                  <div className="space-y-12">
+                    <p className="font-bold text-[#07172C]">Dewan Pengawas</p>
+                    <p className="border-t border-slate-400 pt-1 text-slate-600">
+                      ( ______________________ )
+                    </p>
+                  </div>
+                  <div className="space-y-12">
+                    <p className="font-bold text-[#07172C]">Koordinator / Pimpinan</p>
+                    <p className="border-t border-slate-400 pt-1 text-slate-600">
+                      ( ______________________ )
+                    </p>
+                  </div>
+                  <div className="space-y-12">
+                    <p className="font-bold text-[#07172C]">Marketing & Administrasi JALA NU</p>
+                    <p className="border-t border-slate-400 pt-1 text-slate-600">
+                      Muhammad Idham Chalid
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </main>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
