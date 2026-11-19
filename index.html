@@ -6,8 +6,7 @@
   <title>JALA NU — Catatan Laporan Pengurus | PP Nurul Ulum Bantul</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <style>
     @media print {
       .no-print { display: none !important; }
@@ -18,688 +17,793 @@
 <body class="bg-slate-100 text-slate-900 antialiased">
   <div id="root"></div>
 
-  <script type="text/babel">
-    const { useState, useEffect, useMemo } = React;
+  <script>
+    (function () {
+      const e = React.createElement;
+      const { useState, useEffect, useMemo } = React;
 
-    const ENTITAS_PENGURUS = [
-      'Dewan Pengasuh',
-      'Dewan Pengawas',
-      'Ustadz Ustadzah',
-      'OSIM',
-      'Komplek Mbah Zainuri',
-      'Komplek Mbah Achmadi',
-      'Komplek Mbah Romlah',
-      'Komplek Mbah Wasirah',
-    ];
+      const ENTITAS_PENGURUS = [
+        'Dewan Pengasuh',
+        'Dewan Pengawas',
+        'Ustadz Ustadzah',
+        'OSIM',
+        'Komplek Mbah Zainuri',
+        'Komplek Mbah Achmadi',
+        'Komplek Mbah Romlah',
+        'Komplek Mbah Wasirah',
+      ];
 
-    const PERIODE_LIST = ['Harian', 'Mingguan', 'Bulanan'];
-    const STATUS_REVIEW = ['Menunggu Review', 'Terverifikasi', 'Perlu Tindak Lanjut'];
+      const PERIODE_LIST = ['Harian', 'Mingguan', 'Bulanan'];
+      const STATUS_REVIEW = ['Menunggu Review', 'Terverifikasi', 'Perlu Tindak Lanjut'];
 
-    const DATA_AWAL = [
-      {
-        id: 'LAP-001',
-        entitas: 'Dewan Pengasuh',
-        pelapor: 'Tim Kesekretariatan Pengasuh',
-        periode: 'Mingguan',
-        tanggal: '2026-11-19',
-        judul: 'Arahan Pembinaan Ruhiyah, Akhlak Santri & Ketertiban Pengurus',
-        kegiatan: 'Pengajian nasihat rutin, penegasan adab harian di lingkungan pesantren, dan evaluasi kebersamaan pengurus.',
-        kendala: 'Penyesuaian jadwal pembinaan di sela agenda kegiatan komplek.',
-        tindakLanjut: 'Menetapkan jadwal pertemuan koordinasi pengasuh dan pengurus secara berkala.',
-        status: 'Terverifikasi',
-        catatanReview: 'Arahan sudah disosialisasikan ke seluruh unit.',
-      },
-      {
-        id: 'LAP-002',
-        entitas: 'Dewan Pengawas',
-        pelapor: 'Sekretariat Pengawas',
-        periode: 'Mingguan',
-        tanggal: '2026-11-18',
-        judul: 'Pemantauan Kedisiplinan Piket, Administrasi & Kepatuhan Tata Tertib',
-        kegiatan: 'Pemeriksaan kelengkapan catatan kegiatan harian unit dan ketepatan waktu pelaporan.',
-        kendala: 'Beberapa catatan unit masih perlu diseragamkan rincian tindak lanjutnya.',
-        tindakLanjut: 'Pengingat jadwal setor catatan mingguan setiap hari Kamis.',
-        status: 'Terverifikasi',
-        catatanReview: 'Format baru sudah lebih tertib dan mudah ditelusuri.',
-      },
-      {
-        id: 'LAP-003',
-        entitas: 'Ustadz Ustadzah',
-        pelapor: 'Koordinator Asatidz',
-        periode: 'Harian',
-        tanggal: '2026-11-19',
-        judul: 'Pelaksanaan KBM Kitab, Sorogan & Pendampingan Belajar Santri',
-        kegiatan: 'Pembelajaran sesuai jadwal harian, setoran hafalan, dan pendampingan santri di kelas.',
-        kendala: 'Perlu pemerataan waktu pendampingan tambahan pada jam bakda Maghrib.',
-        tindakLanjut: 'Menyusun pembagian piket pendampingan asatidz per hari.',
-        status: 'Menunggu Review',
-        catatanReview: '',
-      },
-      {
-        id: 'LAP-004',
-        entitas: 'Komplek Mbah Zainuri',
-        pelapor: 'Pengurus Komplek',
-        periode: 'Harian',
-        tanggal: '2026-11-19',
-        judul: 'Ketertiban Asrama, Kebersihan Kamar & Absensi Santri Komplek',
-        kegiatan: 'Pengecekan kebersihan kamar, absensi kehadiran santri, dan piket malam.',
-        kendala: 'Nihil kendala besar; kebersihan area jemuran perlu dirapikan.',
-        tindakLanjut: 'Kerja bakti singkat sore hari bersama pengurus kamar.',
-        status: 'Terverifikasi',
-        catatanReview: 'Kondisi komplek terjaga dengan baik.',
-      },
-    ];
+      const DATA_AWAL = [
+        {
+          id: 'LAP-001',
+          entitas: 'Dewan Pengasuh',
+          pelapor: 'Tim Kesekretariatan Pengasuh',
+          periode: 'Mingguan',
+          tanggal: '2026-11-19',
+          judul: 'Arahan Pembinaan Ruhiyah, Akhlak Santri & Ketertiban Pengurus',
+          kegiatan: 'Pengajian nasihat rutin, penegasan adab harian di lingkungan pesantren, dan evaluasi kebersamaan pengurus.',
+          kendala: 'Penyesuaian jadwal pembinaan di sela agenda kegiatan komplek.',
+          tindakLanjut: 'Menetapkan jadwal pertemuan koordinasi pengasuh dan pengurus secara berkala.',
+          status: 'Terverifikasi',
+          catatanReview: 'Arahan sudah disosialisasikan ke seluruh unit.',
+        },
+        {
+          id: 'LAP-002',
+          entitas: 'Dewan Pengawas',
+          pelapor: 'Sekretariat Pengawas',
+          periode: 'Mingguan',
+          tanggal: '2026-11-18',
+          judul: 'Pemantauan Kedisiplinan Piket, Administrasi & Kepatuhan Tata Tertib',
+          kegiatan: 'Pemeriksaan kelengkapan catatan kegiatan harian unit dan ketepatan waktu pelaporan.',
+          kendala: 'Beberapa catatan unit masih perlu diseragamkan rincian tindak lanjutnya.',
+          tindakLanjut: 'Pengingat jadwal setor catatan mingguan setiap hari Kamis.',
+          status: 'Terverifikasi',
+          catatanReview: 'Format baru sudah lebih tertib dan mudah ditelusuri.',
+        },
+        {
+          id: 'LAP-003',
+          entitas: 'Ustadz Ustadzah',
+          pelapor: 'Koordinator Asatidz',
+          periode: 'Harian',
+          tanggal: '2026-11-19',
+          judul: 'Pelaksanaan KBM Kitab, Sorogan & Pendampingan Belajar Santri',
+          kegiatan: 'Pembelajaran sesuai jadwal harian, setoran hafalan, dan pendampingan santri di kelas.',
+          kendala: 'Perlu pemerataan waktu pendampingan tambahan pada jam bakda Maghrib.',
+          tindakLanjut: 'Menyusun pembagian piket pendampingan asatidz per hari.',
+          status: 'Menunggu Review',
+          catatanReview: '',
+        },
+        {
+          id: 'LAP-004',
+          entitas: 'Komplek Mbah Zainuri',
+          pelapor: 'Pengurus Komplek',
+          periode: 'Harian',
+          tanggal: '2026-11-19',
+          judul: 'Ketertiban Asrama, Kebersihan Kamar & Absensi Santri Komplek',
+          kegiatan: 'Pengecekan kebersihan kamar, absensi kehadiran santri, dan piket malam.',
+          kendala: 'Nihil kendala besar; kebersihan area jemuran perlu dirapikan.',
+          tindakLanjut: 'Kerja bakti singkat sore hari bersama pengurus kamar.',
+          status: 'Terverifikasi',
+          catatanReview: 'Kondisi komplek terjaga dengan baik.',
+        },
+      ];
 
-    function getStatusBadge(status) {
-      if (status === 'Terverifikasi') {
-        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-      }
-      if (status === 'Perlu Tindak Lanjut') {
-        return 'bg-amber-50 text-amber-800 border-amber-200';
-      }
-      return 'bg-sky-50 text-sky-700 border-sky-200';
-    }
-
-    function exportCsv(filename, rows) {
-      if (!rows.length) return;
-      const headers = Object.keys(rows[0]);
-      const csv = [
-        headers.join(','),
-        ...rows.map((row) =>
-          headers
-            .map((key) => `"${String(row[key] ?? '').replace(/"/g, '""')}"`)
-            .join(',')
-        ),
-      ].join('\n');
-
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-
-    function App() {
-      const [mode, setMode] = useState('catatan'); // 'catatan' | 'rekap'
-      const [selectedEntitas, setSelectedEntitas] = useState('Semua');
-      const [selectedPeriode, setSelectedPeriode] = useState('Semua');
-      const [selectedStatus, setSelectedStatus] = useState('Semua');
-      const [searchQuery, setSearchQuery] = useState('');
-
-      const [laporan, setLaporan] = useState(() => {
-        try {
-          const saved = localStorage.getItem('jala_nu_catatan_pengurus_v2');
-          return saved ? JSON.parse(saved) : DATA_AWAL;
-        } catch {
-          return DATA_AWAL;
+      function getStatusBadge(status) {
+        if (status === 'Terverifikasi') {
+          return 'bg-emerald-50 text-emerald-700 border-emerald-200';
         }
-      });
+        if (status === 'Perlu Tindak Lanjut') {
+          return 'bg-amber-50 text-amber-800 border-amber-200';
+        }
+        return 'bg-sky-50 text-sky-700 border-sky-200';
+      }
 
-      useEffect(() => {
-        try {
-          localStorage.setItem('jala_nu_catatan_pengurus_v2', JSON.stringify(laporan));
-        } catch {}
-      }, [laporan]);
+      function exportCsv(filename, rows) {
+        if (!rows || !rows.length) return;
+        const headers = Object.keys(rows[0]);
+        const csv = [
+          headers.join(','),
+          ...rows.map((row) =>
+            headers
+              .map((key) => '"' + String(row[key] ?? '').replace(/"/g, '""') + '"')
+              .join(',')
+          ),
+        ].join('\n');
 
-      const [form, setForm] = useState({
-        entitas: 'Dewan Pengasuh',
-        pelapor: '',
-        periode: 'Mingguan',
-        tanggal: new Date().toISOString().slice(0, 10),
-        judul: '',
-        kegiatan: '',
-        kendala: '',
-        tindakLanjut: '',
-        status: 'Menunggu Review',
-        catatanReview: '',
-      });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
 
-      const ringkasan = useMemo(() => {
-        const total = laporan.length;
-        const entitasAktif = new Set(laporan.map((item) => item.entitas)).size;
-        const menunggu = laporan.filter((item) => item.status === 'Menunggu Review').length;
-        const terverifikasi = laporan.filter((item) => item.status === 'Terverifikasi').length;
-        return { total, entitasAktif, menunggu, terverifikasi };
-      }, [laporan]);
+      function App() {
+        const [mode, setMode] = useState('catatan');
+        const [selectedEntitas, setSelectedEntitas] = useState('Semua');
+        const [selectedPeriode, setSelectedPeriode] = useState('Semua');
+        const [selectedStatus, setSelectedStatus] = useState('Semua');
+        const [searchQuery, setSearchQuery] = useState('');
 
-      const hasilFilter = useMemo(() => {
-        return laporan.filter((item) => {
-          const q = searchQuery.trim().toLowerCase();
-          const cocokCari =
-            !q ||
-            item.judul.toLowerCase().includes(q) ||
-            item.entitas.toLowerCase().includes(q) ||
-            item.pelapor.toLowerCase().includes(q) ||
-            item.kegiatan.toLowerCase().includes(q) ||
-            item.tindakLanjut.toLowerCase().includes(q);
-
-          const cocokEntitas = selectedEntitas === 'Semua' || item.entitas === selectedEntitas;
-          const cocokPeriode = selectedPeriode === 'Semua' || item.periode === selectedPeriode;
-          const cocokStatus = selectedStatus === 'Semua' || item.status === selectedStatus;
-
-          return cocokCari && cocokEntitas && cocokPeriode && cocokStatus;
+        const [laporan, setLaporan] = useState(() => {
+          try {
+            const saved = localStorage.getItem('jala_nu_catatan_pengurus_v3');
+            return saved ? JSON.parse(saved) : DATA_AWAL;
+          } catch (_) {
+            return DATA_AWAL;
+          }
         });
-      }, [laporan, searchQuery, selectedEntitas, selectedPeriode, selectedStatus]);
 
-      function handleSubmit(e) {
-        e.preventDefault();
-        if (!form.judul.trim()) return;
+        useEffect(() => {
+          try {
+            localStorage.setItem('jala_nu_catatan_pengurus_v3', JSON.stringify(laporan));
+          } catch (_) {}
+        }, [laporan]);
 
-        const nomor = String(laporan.length + 1).padStart(3, '0');
-        const itemBaru = {
-          id: `LAP-${nomor}`,
-          ...form,
-          judul: form.judul.trim(),
-          pelapor: form.pelapor.trim() || form.entitas,
-          kegiatan: form.kegiatan.trim() || 'Kegiatan berjalan sesuai agenda.',
-          kendala: form.kendala.trim() || 'Tidak ada kendala signifikan.',
-          tindakLanjut: form.tindakLanjut.trim() || 'Melanjutkan pemantauan rutin.',
-        };
-
-        setLaporan((prev) => [itemBaru, ...prev]);
-        setForm((prev) => ({
-          ...prev,
+        const [form, setForm] = useState({
+          entitas: 'Dewan Pengasuh',
           pelapor: '',
+          periode: 'Mingguan',
+          tanggal: new Date().toISOString().slice(0, 10),
           judul: '',
           kegiatan: '',
           kendala: '',
           tindakLanjut: '',
+          status: 'Menunggu Review',
           catatanReview: '',
-        }));
-      }
+        });
 
-      function handleUpdateStatus(id, nextStatus) {
-        setLaporan((prev) =>
-          prev.map((item) => (item.id === id ? { ...item, status: nextStatus } : item))
+        const ringkasan = useMemo(() => {
+          const total = laporan.length;
+          const entitasAktif = new Set(laporan.map((item) => item.entitas)).size;
+          const menunggu = laporan.filter((item) => item.status === 'Menunggu Review').length;
+          const terverifikasi = laporan.filter((item) => item.status === 'Terverifikasi').length;
+          return { total, entitasAktif, menunggu, terverifikasi };
+        }, [laporan]);
+
+        const hasilFilter = useMemo(() => {
+          return laporan.filter((item) => {
+            const q = searchQuery.trim().toLowerCase();
+            const cocokCari =
+              !q ||
+              item.judul.toLowerCase().includes(q) ||
+              item.entitas.toLowerCase().includes(q) ||
+              item.pelapor.toLowerCase().includes(q) ||
+              item.kegiatan.toLowerCase().includes(q) ||
+              item.tindakLanjut.toLowerCase().includes(q);
+
+            const cocokEntitas = selectedEntitas === 'Semua' || item.entitas === selectedEntitas;
+            const cocokPeriode = selectedPeriode === 'Semua' || item.periode === selectedPeriode;
+            const cocokStatus = selectedStatus === 'Semua' || item.status === selectedStatus;
+
+            return cocokCari && cocokEntitas && cocokPeriode && cocokStatus;
+          });
+        }, [laporan, searchQuery, selectedEntitas, selectedPeriode, selectedStatus]);
+
+        function handleSubmit(ev) {
+          ev.preventDefault();
+          if (!form.judul.trim()) return;
+
+          const nomor = String(laporan.length + 1).padStart(3, '0');
+          const itemBaru = {
+            id: 'LAP-' + nomor,
+            entitas: form.entitas,
+            pelapor: form.pelapor.trim() || form.entitas,
+            periode: form.periode,
+            tanggal: form.tanggal,
+            judul: form.judul.trim(),
+            kegiatan: form.kegiatan.trim() || 'Kegiatan berjalan sesuai agenda.',
+            kendala: form.kendala.trim() || 'Tidak ada kendala signifikan.',
+            tindakLanjut: form.tindakLanjut.trim() || 'Melanjutkan pemantauan rutin.',
+            status: form.status,
+            catatanReview: form.catatanReview,
+          };
+
+          setLaporan((prev) => [itemBaru, ...prev]);
+          setForm((prev) => ({
+            ...prev,
+            pelapor: '',
+            judul: '',
+            kegiatan: '',
+            kendala: '',
+            tindakLanjut: '',
+            catatanReview: '',
+          }));
+        }
+
+        function handleUpdateStatus(id, nextStatus) {
+          setLaporan((prev) =>
+            prev.map((item) => (item.id === id ? { ...item, status: nextStatus } : item))
+          );
+        }
+
+        function handleUpdateReview(id, text) {
+          setLaporan((prev) =>
+            prev.map((item) => (item.id === id ? { ...item, catatanReview: text } : item))
+          );
+        }
+
+        function handleHapus(id) {
+          setLaporan((prev) => prev.filter((item) => item.id !== id));
+        }
+
+        const headerEl = e(
+          'header',
+          { className: 'no-print bg-[#0B2239] text-white border-b border-slate-800' },
+          e(
+            'div',
+            {
+              className:
+                'max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3',
+            },
+            e(
+              'div',
+              null,
+              e(
+                'div',
+                { className: 'flex items-center gap-2.5' },
+                e('span', { className: 'text-lg sm:text-xl font-bold tracking-wide' }, 'JALA NU'),
+                e(
+                  'span',
+                  {
+                    className:
+                      'text-xs px-2.5 py-0.5 rounded bg-sky-500/20 text-sky-200 border border-sky-400/30 font-medium',
+                  },
+                  'Catatan Laporan Pengurus'
+                )
+              ),
+              e(
+                'p',
+                { className: 'text-xs text-slate-300 mt-0.5' },
+                'Pondok Pesantren Nurul Ulum Bantul • Sistem Pencatatan & Rekapitulasi Internal'
+              )
+            ),
+            e(
+              'div',
+              {
+                className:
+                  'flex items-center gap-2 bg-slate-900/60 p-1 rounded-lg border border-white/10 self-start sm:self-auto',
+              },
+              e(
+                'button',
+                {
+                  type: 'button',
+                  onClick: () => setMode('catatan'),
+                  className:
+                    'px-3.5 py-1.5 rounded-md text-xs sm:text-sm font-medium transition ' +
+                    (mode === 'catatan' ? 'bg-sky-600 text-white' : 'text-slate-300 hover:text-white'),
+                },
+                'Catatan & Input'
+              ),
+              e(
+                'button',
+                {
+                  type: 'button',
+                  onClick: () => setMode('rekap'),
+                  className:
+                    'px-3.5 py-1.5 rounded-md text-xs sm:text-sm font-medium transition ' +
+                    (mode === 'rekap' ? 'bg-sky-600 text-white' : 'text-slate-300 hover:text-white'),
+                },
+                'Rekap Cetak'
+              )
+            )
+          )
+        );
+
+        const summaryCards = [
+          ['Total Catatan', String(ringkasan.total), 'Seluruh laporan tercatat', 'text-slate-900'],
+          [
+            'Entitas Melapor',
+            ringkasan.entitasAktif + ' / ' + ENTITAS_PENGURUS.length,
+            'Termasuk Dewan Pengasuh',
+            'text-[#0B2239]',
+          ],
+          ['Menunggu Review', String(ringkasan.menunggu), 'Perlu pemeriksaan lanjut', 'text-sky-700'],
+          [
+            'Terverifikasi',
+            String(ringkasan.terverifikasi),
+            'Sudah diperiksa & disetujui',
+            'text-emerald-700',
+          ],
+        ];
+
+        const summarySection = e(
+          'section',
+          { className: 'no-print grid grid-cols-2 lg:grid-cols-4 gap-4' },
+          summaryCards.map(([label, val, sub, valClass]) =>
+            e(
+              'div',
+              { key: label, className: 'bg-white rounded-xl p-4 border border-slate-200' },
+              e('p', { className: 'text-xs font-medium text-slate-500' }, label),
+              e('p', { className: 'text-2xl font-bold mt-1 ' + valClass }, val),
+              e('p', { className: 'text-xs text-slate-500 mt-1' }, sub)
+            )
+          )
+        );
+
+        const formSection = e(
+          'section',
+          { className: 'lg:col-span-5 bg-white rounded-xl border border-slate-200 p-5 space-y-4' },
+          e(
+            'div',
+            { className: 'border-b border-slate-100 pb-3' },
+            e('h2', { className: 'text-base font-bold text-slate-900' }, 'Tambah Catatan Laporan Pengurus'),
+            e(
+              'p',
+              { className: 'text-xs text-slate-500 mt-0.5' },
+              'Isi laporan kegiatan, kendala, dan tindak lanjut sesuai entitas.'
+            )
+          ),
+          e(
+            'form',
+            { onSubmit: handleSubmit, className: 'space-y-3.5' },
+            e(
+              'div',
+              null,
+              e('label', { className: 'block text-xs font-semibold text-slate-700 mb-1' }, 'Entitas / Unsur Pengurus *'),
+              e(
+                'select',
+                {
+                  value: form.entitas,
+                  onChange: (ev) => setForm({ ...form, entitas: ev.target.value }),
+                  className:
+                    'w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-600',
+                },
+                ENTITAS_PENGURUS.map((ent) => e('option', { key: ent, value: ent }, ent))
+              )
+            ),
+            e(
+              'div',
+              { className: 'grid grid-cols-1 sm:grid-cols-2 gap-3' },
+              e(
+                'div',
+                null,
+                e('label', { className: 'block text-xs font-semibold text-slate-700 mb-1' }, 'Periode'),
+                e(
+                  'select',
+                  {
+                    value: form.periode,
+                    onChange: (ev) => setForm({ ...form, periode: ev.target.value }),
+                    className:
+                      'w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-600',
+                  },
+                  PERIODE_LIST.map((p) => e('option', { key: p, value: p }, p))
+                )
+              ),
+              e(
+                'div',
+                null,
+                e('label', { className: 'block text-xs font-semibold text-slate-700 mb-1' }, 'Tanggal'),
+                e('input', {
+                  type: 'date',
+                  value: form.tanggal,
+                  onChange: (ev) => setForm({ ...form, tanggal: ev.target.value }),
+                  className:
+                    'w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-600',
+                })
+              )
+            ),
+            e(
+              'div',
+              null,
+              e('label', { className: 'block text-xs font-semibold text-slate-700 mb-1' }, 'Nama Pelapor / Penanggung Jawab'),
+              e('input', {
+                type: 'text',
+                value: form.pelapor,
+                onChange: (ev) => setForm({ ...form, pelapor: ev.target.value }),
+                placeholder: 'Contoh: Pengurus Harian / Koordinator Unit',
+                className:
+                  'w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-600',
+              })
+            ),
+            e(
+              'div',
+              null,
+              e('label', { className: 'block text-xs font-semibold text-slate-700 mb-1' }, 'Pokok Laporan / Judul *'),
+              e('input', {
+                type: 'text',
+                required: true,
+                value: form.judul,
+                onChange: (ev) => setForm({ ...form, judul: ev.target.value }),
+                placeholder: 'Contoh: Evaluasi Kegiatan Mingguan & Ketertiban',
+                className:
+                  'w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-600',
+              })
+            ),
+            e(
+              'div',
+              null,
+              e('label', { className: 'block text-xs font-semibold text-slate-700 mb-1' }, 'Ringkasan Kegiatan'),
+              e('textarea', {
+                rows: 3,
+                value: form.kegiatan,
+                onChange: (ev) => setForm({ ...form, kegiatan: ev.target.value }),
+                placeholder: 'Tuliskan kegiatan utama yang telah dilaksanakan...',
+                className:
+                  'w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-600',
+              })
+            ),
+            e(
+              'div',
+              null,
+              e('label', { className: 'block text-xs font-semibold text-slate-700 mb-1' }, 'Kendala / Catatan Lapangan'),
+              e('input', {
+                type: 'text',
+                value: form.kendala,
+                onChange: (ev) => setForm({ ...form, kendala: ev.target.value }),
+                placeholder: 'Kendala yang ditemukan (jika ada)',
+                className:
+                  'w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-600',
+              })
+            ),
+            e(
+              'div',
+              null,
+              e('label', { className: 'block text-xs font-semibold text-slate-700 mb-1' }, 'Rencana Tindak Lanjut'),
+              e('input', {
+                type: 'text',
+                value: form.tindakLanjut,
+                onChange: (ev) => setForm({ ...form, tindakLanjut: ev.target.value }),
+                placeholder: 'Langkah perbaikan atau agenda lanjutan',
+                className:
+                  'w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-600',
+              })
+            ),
+            e(
+              'button',
+              {
+                type: 'submit',
+                className:
+                  'w-full py-2.5 px-4 rounded-lg bg-[#0B2239] hover:bg-slate-800 text-white text-sm font-semibold transition',
+              },
+              'Simpan Catatan Laporan'
+            )
+          )
+        );
+
+        const listSection = e(
+          'section',
+          { className: 'lg:col-span-7 space-y-4' },
+          e(
+            'div',
+            { className: 'bg-white rounded-xl border border-slate-200 p-5 space-y-4' },
+            e(
+              'div',
+              { className: 'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3' },
+              e(
+                'div',
+                null,
+                e(
+                  'h2',
+                  { className: 'text-base font-bold text-slate-900' },
+                  'Daftar Catatan Laporan (' + hasilFilter.length + ')'
+                ),
+                e(
+                  'p',
+                  { className: 'text-xs text-slate-500' },
+                  'Saring berdasarkan entitas, periode, atau status pemeriksaan.'
+                )
+              ),
+              e(
+                'button',
+                {
+                  type: 'button',
+                  onClick: () => exportCsv('jala-nu-catatan-pengurus.csv', hasilFilter),
+                  className:
+                    'px-3 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-50 text-xs font-semibold text-slate-700 self-start sm:self-auto',
+                },
+                'Unduh CSV'
+              )
+            ),
+            e(
+              'div',
+              { className: 'flex flex-wrap gap-1.5 pt-1' },
+              ['Semua', ...ENTITAS_PENGURUS].map((ent) =>
+                e(
+                  'button',
+                  {
+                    key: ent,
+                    type: 'button',
+                    onClick: () => setSelectedEntitas(ent),
+                    className:
+                      'px-2.5 py-1 rounded-md text-xs font-medium transition ' +
+                      (selectedEntitas === ent
+                        ? 'bg-[#0B2239] text-white'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'),
+                  },
+                  ent
+                )
+              )
+            ),
+            e(
+              'div',
+              { className: 'grid grid-cols-1 sm:grid-cols-3 gap-3' },
+              e('input', {
+                type: 'text',
+                value: searchQuery,
+                onChange: (ev) => setSearchQuery(ev.target.value),
+                placeholder: 'Cari judul, pelapor, isi...',
+                className:
+                  'px-3 py-2 rounded-lg border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-sky-600',
+              }),
+              e(
+                'select',
+                {
+                  value: selectedPeriode,
+                  onChange: (ev) => setSelectedPeriode(ev.target.value),
+                  className:
+                    'px-3 py-2 rounded-lg border border-slate-300 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-600',
+                },
+                [e('option', { key: 'Semua', value: 'Semua' }, 'Semua Periode')].concat(
+                  PERIODE_LIST.map((p) => e('option', { key: p, value: p }, p))
+                )
+              ),
+              e(
+                'select',
+                {
+                  value: selectedStatus,
+                  onChange: (ev) => setSelectedStatus(ev.target.value),
+                  className:
+                    'px-3 py-2 rounded-lg border border-slate-300 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-600',
+                },
+                [e('option', { key: 'Semua', value: 'Semua' }, 'Semua Status')].concat(
+                  STATUS_REVIEW.map((st) => e('option', { key: st, value: st }, st))
+                )
+              )
+            )
+          ),
+          hasilFilter.length === 0
+            ? e(
+                'div',
+                {
+                  className:
+                    'bg-white rounded-xl border border-slate-200 p-8 text-center text-sm text-slate-500',
+                },
+                'Belum ada catatan laporan yang sesuai dengan filter yang dipilih.'
+              )
+            : e(
+                'div',
+                { className: 'space-y-4' },
+                hasilFilter.map((item) =>
+                  e(
+                    'article',
+                    {
+                      key: item.id,
+                      className: 'bg-white rounded-xl border border-slate-200 p-5 space-y-3',
+                    },
+                    e(
+                      'div',
+                      { className: 'flex flex-wrap items-center justify-between gap-2' },
+                      e(
+                        'div',
+                        { className: 'flex items-center gap-2 flex-wrap' },
+                        e(
+                          'span',
+                          { className: 'px-2.5 py-0.5 rounded bg-slate-900 text-white text-xs font-semibold' },
+                          item.entitas
+                        ),
+                        e(
+                          'span',
+                          { className: 'text-xs font-medium text-slate-500' },
+                          item.periode + ' • ' + item.tanggal + ' • Pelapor: ' + item.pelapor
+                        )
+                      ),
+                      e(
+                        'span',
+                        {
+                          className:
+                            'px-2.5 py-0.5 rounded-full text-xs font-semibold border ' +
+                            getStatusBadge(item.status),
+                        },
+                        item.status
+                      )
+                    ),
+                    e('h3', { className: 'text-base font-bold text-slate-900' }, item.judul),
+                    e(
+                      'div',
+                      { className: 'space-y-1.5 text-sm text-slate-700 leading-relaxed' },
+                      e(
+                        'p',
+                        null,
+                        e('span', { className: 'font-semibold text-slate-900' }, 'Kegiatan: '),
+                        item.kegiatan
+                      ),
+                      e(
+                        'p',
+                        null,
+                        e('span', { className: 'font-semibold text-slate-900' }, 'Kendala: '),
+                        item.kendala
+                      ),
+                      e(
+                        'p',
+                        null,
+                        e('span', { className: 'font-semibold text-slate-900' }, 'Tindak Lanjut: '),
+                        item.tindakLanjut
+                      )
+                    ),
+                    e(
+                      'div',
+                      {
+                        className:
+                          'pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center gap-2.5',
+                      },
+                      e(
+                        'select',
+                        {
+                          value: item.status,
+                          onChange: (ev) => handleUpdateStatus(item.id, ev.target.value),
+                          className:
+                            'px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold bg-white text-slate-800',
+                        },
+                        STATUS_REVIEW.map((st) => e('option', { key: st, value: st }, st))
+                      ),
+                      e('input', {
+                        type: 'text',
+                        value: item.catatanReview || '',
+                        onChange: (ev) => handleUpdateReview(item.id, ev.target.value),
+                        placeholder: 'Catatan review / arahan pimpinan...',
+                        className:
+                          'flex-1 px-3 py-1.5 rounded-lg border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-sky-600',
+                      }),
+                      e(
+                        'button',
+                        {
+                          type: 'button',
+                          onClick: () => handleHapus(item.id),
+                          className:
+                            'px-3 py-1.5 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-medium self-start sm:self-auto',
+                        },
+                        'Hapus'
+                      )
+                    )
+                  )
+                )
+              )
+        );
+
+        const rekapSection = e(
+          'section',
+          { className: 'bg-white rounded-xl border border-slate-200 p-6 sm:p-8 space-y-6' },
+          e(
+            'div',
+            {
+              className:
+                'no-print flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-slate-200',
+            },
+            e(
+              'div',
+              null,
+              e(
+                'h2',
+                { className: 'text-lg font-bold text-slate-900' },
+                'Rekapitulasi Catatan Laporan Pengurus'
+              ),
+              e(
+                'p',
+                { className: 'text-xs text-slate-500' },
+                'Siap dicetak atau disimpan sebagai PDF untuk keperluan rapat internal.'
+              )
+            ),
+            e(
+              'div',
+              { className: 'flex items-center gap-2' },
+              e(
+                'button',
+                {
+                  type: 'button',
+                  onClick: () => exportCsv('jala-nu-rekap-pengurus.csv', laporan),
+                  className:
+                    'px-3.5 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 text-xs font-semibold text-slate-700',
+                },
+                'Unduh CSV'
+              ),
+              e(
+                'button',
+                {
+                  type: 'button',
+                  onClick: () => window.print(),
+                  className:
+                    'px-4 py-2 rounded-lg bg-[#0B2239] hover:bg-slate-800 text-white text-xs font-semibold',
+                },
+                'Cetak Rekap'
+              )
+            )
+          ),
+          e(
+            'div',
+            { className: 'text-center border-b border-slate-300 pb-4 space-y-1' },
+            e(
+              'p',
+              { className: 'text-xs font-semibold uppercase tracking-wider text-slate-500' },
+              'SISTEM JALA NU • PONDOK PESANTREN NURUL ULUM BANTUL'
+            ),
+            e(
+              'h3',
+              { className: 'text-xl font-bold text-slate-900' },
+              'REKAPITULASI CATATAN LAPORAN PENGURUS'
+            ),
+            e(
+              'p',
+              { className: 'text-xs text-slate-600' },
+              'Dewan Pengasuh, Dewan Pengawas, Ustadz Ustadzah, OSIM, dan 4 Komplek Asrama'
+            )
+          ),
+          e(
+            'div',
+            { className: 'overflow-x-auto' },
+            e(
+              'table',
+              { className: 'w-full text-left border-collapse text-xs' },
+              e(
+                'thead',
+                null,
+                e(
+                  'tr',
+                  { className: 'bg-slate-900 text-white' },
+                  ['Entitas', 'Tanggal', 'Periode', 'Pokok Laporan', 'Tindak Lanjut', 'Status'].map(
+                    (col) => e('th', { key: col, className: 'p-2.5' }, col)
+                  )
+                )
+              ),
+              e(
+                'tbody',
+                { className: 'divide-y divide-slate-200' },
+                laporan.map((item) =>
+                  e(
+                    'tr',
+                    { key: item.id },
+                    e('td', { className: 'p-2.5 font-semibold text-slate-900' }, item.entitas),
+                    e('td', { className: 'p-2.5 whitespace-nowrap' }, item.tanggal),
+                    e('td', { className: 'p-2.5' }, item.periode),
+                    e('td', { className: 'p-2.5' }, item.judul),
+                    e('td', { className: 'p-2.5' }, item.tindakLanjut),
+                    e('td', { className: 'p-2.5 whitespace-nowrap font-medium' }, item.status)
+                  )
+                )
+              )
+            )
+          ),
+          e(
+            'div',
+            { className: 'grid grid-cols-1 sm:grid-cols-3 gap-6 pt-8 text-center text-xs' },
+            [
+              ['Dewan Pengasuh', '( ________________________ )'],
+              ['Dewan Pengawas', '( ________________________ )'],
+              ['Penyusun Laporan', 'Muhammad Idham Chalid'],
+            ].map(([jabatan, nama]) =>
+              e(
+                'div',
+                { key: jabatan, className: 'space-y-12' },
+                e('p', { className: 'font-semibold text-slate-900' }, jabatan),
+                e('p', { className: 'border-t border-slate-400 pt-1 text-slate-600' }, nama)
+              )
+            )
+          )
+        );
+
+        return e(
+          'div',
+          { className: 'min-h-screen bg-slate-100 text-slate-900' },
+          headerEl,
+          e(
+            'main',
+            { className: 'max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6' },
+            summarySection,
+            mode === 'catatan'
+              ? e('div', { className: 'grid grid-cols-1 lg:grid-cols-12 gap-6 items-start' }, formSection, listSection)
+              : rekapSection
+          )
         );
       }
 
-      function handleUpdateReview(id, text) {
-        setLaporan((prev) =>
-          prev.map((item) => (item.id === id ? { ...item, catatanReview: text } : item))
-        );
-      }
-
-      function handleHapus(id) {
-        setLaporan((prev) => prev.filter((item) => item.id !== id));
-      }
-
-      return (
-        <div className="min-h-screen bg-slate-100 text-slate-900">
-          {/* Header Utama */}
-          <header className="no-print bg-[#0B2239] text-white border-b border-slate-800">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div>
-                <div className="flex items-center gap-2.5">
-                  <span className="text-lg sm:text-xl font-bold tracking-wide">JALA NU</span>
-                  <span className="text-xs px-2.5 py-0.5 rounded bg-sky-500/20 text-sky-200 border border-sky-400/30 font-medium">
-                    Catatan Laporan Pengurus
-                  </span>
-                </div>
-                <p className="text-xs text-slate-300 mt-0.5">
-                  Pondok Pesantren Nurul Ulum Bantul • Sistem Pencatatan & Rekapitulasi Internal
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2 bg-slate-900/60 p-1 rounded-lg border border-white/10 self-start sm:self-auto">
-                <button
-                  type="button"
-                  onClick={() => setMode('catatan')}
-                  className={`px-3.5 py-1.5 rounded-md text-xs sm:text-sm font-medium transition ${
-                    mode === 'catatan'
-                      ? 'bg-sky-600 text-white'
-                      : 'text-slate-300 hover:text-white'
-                  }`}
-                >
-                  Catatan & Input
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setMode('rekap')}
-                  className={`px-3.5 py-1.5 rounded-md text-xs sm:text-sm font-medium transition ${
-                    mode === 'rekap'
-                      ? 'bg-sky-600 text-white'
-                      : 'text-slate-300 hover:text-white'
-                  }`}
-                >
-                  Rekap Cetak
-                </button>
-              </div>
-            </div>
-          </header>
-
-          <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-            {/* Ringkasan 4 Kartu */}
-            <section className="no-print grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white rounded-xl p-4 border border-slate-200">
-                <p className="text-xs font-medium text-slate-500">Total Catatan</p>
-                <p className="text-2xl font-bold text-slate-900 mt-1">{ringkasan.total}</p>
-                <p className="text-xs text-slate-500 mt-1">Seluruh laporan tercatat</p>
-              </div>
-
-              <div className="bg-white rounded-xl p-4 border border-slate-200">
-                <p className="text-xs font-medium text-slate-500">Entitas Melapor</p>
-                <p className="text-2xl font-bold text-[#0B2239] mt-1">
-                  {ringkasan.entitasAktif} / {ENTITAS_PENGURUS.length}
-                </p>
-                <p className="text-xs text-slate-500 mt-1">Termasuk Dewan Pengasuh</p>
-              </div>
-
-              <div className="bg-white rounded-xl p-4 border border-slate-200">
-                <p className="text-xs font-medium text-slate-500">Menunggu Review</p>
-                <p className="text-2xl font-bold text-sky-700 mt-1">{ringkasan.menunggu}</p>
-                <p className="text-xs text-slate-500 mt-1">Perlu pemeriksaan lanjut</p>
-              </div>
-
-              <div className="bg-white rounded-xl p-4 border border-slate-200">
-                <p className="text-xs font-medium text-slate-500">Terverifikasi</p>
-                <p className="text-2xl font-bold text-emerald-700 mt-1">
-                  {ringkasan.terverifikasi}
-                </p>
-                <p className="text-xs text-slate-500 mt-1">Sudah diperiksa & disetujui</p>
-              </div>
-            </section>
-
-            {mode === 'catatan' ? (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                {/* Kolom Kiri: Form Input Catatan */}
-                <section className="lg:col-span-5 bg-white rounded-xl border border-slate-200 p-5 space-y-4">
-                  <div className="border-b border-slate-100 pb-3">
-                    <h2 className="text-base font-bold text-slate-900">
-                      Tambah Catatan Laporan Pengurus
-                    </h2>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Isi laporan kegiatan, kendala, dan tindak lanjut sesuai entitas.
-                    </p>
-                  </div>
-
-                  <form onSubmit={handleSubmit} className="space-y-3.5">
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Entitas / Unsur Pengurus *
-                      </label>
-                      <select
-                        value={form.entitas}
-                        onChange={(e) => setForm({ ...form, entitas: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-600"
-                      >
-                        {ENTITAS_PENGURUS.map((ent) => (
-                          <option key={ent} value={ent}>
-                            {ent}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1">
-                          Periode
-                        </label>
-                        <select
-                          value={form.periode}
-                          onChange={(e) => setForm({ ...form, periode: e.target.value })}
-                          className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-600"
-                        >
-                          {PERIODE_LIST.map((p) => (
-                            <option key={p} value={p}>
-                              {p}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1">
-                          Tanggal
-                        </label>
-                        <input
-                          type="date"
-                          value={form.tanggal}
-                          onChange={(e) => setForm({ ...form, tanggal: e.target.value })}
-                          className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-600"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Nama Pelapor / Penanggung Jawab
-                      </label>
-                      <input
-                        type="text"
-                        value={form.pelapor}
-                        onChange={(e) => setForm({ ...form, pelapor: e.target.value })}
-                        placeholder="Contoh: Pengurus Harian / Koordinator Unit"
-                        className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-600"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Pokok Laporan / Judul *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={form.judul}
-                        onChange={(e) => setForm({ ...form, judul: e.target.value })}
-                        placeholder="Contoh: Evaluasi Kegiatan Mingguan & Ketertiban"
-                        className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-600"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Ringkasan Kegiatan
-                      </label>
-                      <textarea
-                        rows={3}
-                        value={form.kegiatan}
-                        onChange={(e) => setForm({ ...form, kegiatan: e.target.value })}
-                        placeholder="Tuliskan kegiatan utama yang telah dilaksanakan..."
-                        className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-600"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Kendala / Catatan Lapangan
-                      </label>
-                      <input
-                        type="text"
-                        value={form.kendala}
-                        onChange={(e) => setForm({ ...form, kendala: e.target.value })}
-                        placeholder="Kendala yang ditemukan (jika ada)"
-                        className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-600"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Rencana Tindak Lanjut
-                      </label>
-                      <input
-                        type="text"
-                        value={form.tindakLanjut}
-                        onChange={(e) => setForm({ ...form, tindakLanjut: e.target.value })}
-                        placeholder="Langkah perbaikan atau agenda lanjutan"
-                        className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-600"
-                      />
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="w-full py-2.5 px-4 rounded-lg bg-[#0B2239] hover:bg-slate-800 text-white text-sm font-semibold transition"
-                    >
-                      Simpan Catatan Laporan
-                    </button>
-                  </form>
-                </section>
-
-                {/* Kolom Kanan: Filter & Daftar Catatan */}
-                <section className="lg:col-span-7 space-y-4">
-                  <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                      <div>
-                        <h2 className="text-base font-bold text-slate-900">
-                          Daftar Catatan Laporan ({hasilFilter.length})
-                        </h2>
-                        <p className="text-xs text-slate-500">
-                          Saring berdasarkan entitas, periode, atau status pemeriksaan.
-                        </p>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => exportCsv('jala-nu-catatan-pengurus.csv', hasilFilter)}
-                        className="px-3 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-50 text-xs font-semibold text-slate-700 self-start sm:self-auto"
-                      >
-                        Unduh CSV
-                      </button>
-                    </div>
-
-                    {/* Tab Filter Entitas */}
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {['Semua', ...ENTITAS_PENGURUS].map((ent) => (
-                        <button
-                          key={ent}
-                          type="button"
-                          onClick={() => setSelectedEntitas(ent)}
-                          className={`px-2.5 py-1 rounded-md text-xs font-medium transition ${
-                            selectedEntitas === ent
-                              ? 'bg-[#0B2239] text-white'
-                              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                          }`}
-                        >
-                          {ent}
-                        </button>
-                      ))}
-                    </div>
-
-                    {/* Filter Tambahan */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Cari judul, pelapor, isi..."
-                        className="px-3 py-2 rounded-lg border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-sky-600"
-                      />
-
-                      <select
-                        value={selectedPeriode}
-                        onChange={(e) => setSelectedPeriode(e.target.value)}
-                        className="px-3 py-2 rounded-lg border border-slate-300 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-600"
-                      >
-                        <option value="Semua">Semua Periode</option>
-                        {PERIODE_LIST.map((p) => (
-                          <option key={p} value={p}>
-                            {p}
-                          </option>
-                        ))}
-                      </select>
-
-                      <select
-                        value={selectedStatus}
-                        onChange={(e) => setSelectedStatus(e.target.value)}
-                        className="px-3 py-2 rounded-lg border border-slate-300 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-600"
-                      >
-                        <option value="Semua">Semua Status</option>
-                        {STATUS_REVIEW.map((st) => (
-                          <option key={st} value={st}>
-                            {st}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* List Catatan */}
-                  {hasilFilter.length === 0 ? (
-                    <div className="bg-white rounded-xl border border-slate-200 p-8 text-center text-sm text-slate-500">
-                      Belum ada catatan laporan yang sesuai dengan filter yang dipilih.
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {hasilFilter.map((item) => (
-                        <article
-                          key={item.id}
-                          className="bg-white rounded-xl border border-slate-200 p-5 space-y-3"
-                        >
-                          <div className="flex flex-wrap items-center justify-between gap-2">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="px-2.5 py-0.5 rounded bg-slate-900 text-white text-xs font-semibold">
-                                {item.entitas}
-                              </span>
-                              <span className="text-xs font-medium text-slate-500">
-                                {item.periode} • {item.tanggal} • Pelapor: {item.pelapor}
-                              </span>
-                            </div>
-
-                            <span
-                              className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${getStatusBadge(
-                                item.status
-                              )}`}
-                            >
-                              {item.status}
-                            </span>
-                          </div>
-
-                          <h3 className="text-base font-bold text-slate-900">{item.judul}</h3>
-
-                          <div className="space-y-1.5 text-sm text-slate-700 leading-relaxed">
-                            <p>
-                              <span className="font-semibold text-slate-900">Kegiatan:</span>{' '}
-                              {item.kegiatan}
-                            </p>
-                            <p>
-                              <span className="font-semibold text-slate-900">Kendala:</span>{' '}
-                              {item.kendala}
-                            </p>
-                            <p>
-                              <span className="font-semibold text-slate-900">Tindak Lanjut:</span>{' '}
-                              {item.tindakLanjut}
-                            </p>
-                          </div>
-
-                          <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center gap-2.5">
-                            <select
-                              value={item.status}
-                              onChange={(e) => handleUpdateStatus(item.id, e.target.value)}
-                              className="px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold bg-white text-slate-800"
-                            >
-                              {STATUS_REVIEW.map((st) => (
-                                <option key={st} value={st}>
-                                  {st}
-                                </option>
-                              ))}
-                            </select>
-
-                            <input
-                              type="text"
-                              value={item.catatanReview || ''}
-                              onChange={(e) => handleUpdateReview(item.id, e.target.value)}
-                              placeholder="Catatan review / arahan pimpinan..."
-                              className="flex-1 px-3 py-1.5 rounded-lg border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-sky-600"
-                            />
-
-                            <button
-                              type="button"
-                              onClick={() => handleHapus(item.id)}
-                              className="px-3 py-1.5 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-medium self-start sm:self-auto"
-                            >
-                              Hapus
-                            </button>
-                          </div>
-                        </article>
-                      ))}
-                    </div>
-                  )}
-                </section>
-              </div>
-            ) : (
-              /* Halaman Rekap Cetak */
-              <section className="bg-white rounded-xl border border-slate-200 p-6 sm:p-8 space-y-6">
-                <div className="no-print flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-slate-200">
-                  <div>
-                    <h2 className="text-lg font-bold text-slate-900">
-                      Rekapitulasi Catatan Laporan Pengurus
-                    </h2>
-                    <p className="text-xs text-slate-500">
-                      Siap dicetak atau disimpan sebagai PDF untuk keperluan rapat internal.
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => exportCsv('jala-nu-rekap-pengurus.csv', laporan)}
-                      className="px-3.5 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 text-xs font-semibold text-slate-700"
-                    >
-                      Unduh CSV
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => window.print()}
-                      className="px-4 py-2 rounded-lg bg-[#0B2239] hover:bg-slate-800 text-white text-xs font-semibold"
-                    >
-                      Cetak Rekap
-                    </button>
-                  </div>
-                </div>
-
-                <div className="text-center border-b border-slate-300 pb-4 space-y-1">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                    SISTEM JALA NU • PONDOK PESANTREN NURUL ULUM BANTUL
-                  </p>
-                  <h3 className="text-xl font-bold text-slate-900">
-                    REKAPITULASI CATATAN LAPORAN PENGURUS
-                  </h3>
-                  <p className="text-xs text-slate-600">
-                    Dewan Pengasuh, Dewan Pengawas, Ustadz Ustadzah, OSIM, dan 4 Komplek Asrama
-                  </p>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse text-xs">
-                    <thead>
-                      <tr className="bg-slate-900 text-white">
-                        <th className="p-2.5">Entitas</th>
-                        <th className="p-2.5">Tanggal</th>
-                        <th className="p-2.5">Periode</th>
-                        <th className="p-2.5">Pokok Laporan</th>
-                        <th className="p-2.5">Tindak Lanjut</th>
-                        <th className="p-2.5">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200">
-                      {laporan.map((item) => (
-                        <tr key={item.id}>
-                          <td className="p-2.5 font-semibold text-slate-900">{item.entitas}</td>
-                          <td className="p-2.5 whitespace-nowrap">{item.tanggal}</td>
-                          <td className="p-2.5">{item.periode}</td>
-                          <td className="p-2.5">{item.judul}</td>
-                          <td className="p-2.5">{item.tindakLanjut}</td>
-                          <td className="p-2.5 whitespace-nowrap font-medium">{item.status}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-8 text-center text-xs">
-                  <div className="space-y-12">
-                    <p className="font-semibold text-slate-900">Dewan Pengasuh</p>
-                    <p className="border-t border-slate-400 pt-1 text-slate-600">
-                      ( ________________________ )
-                    </p>
-                  </div>
-                  <div className="space-y-12">
-                    <p className="font-semibold text-slate-900">Dewan Pengawas</p>
-                    <p className="border-t border-slate-400 pt-1 text-slate-600">
-                      ( ________________________ )
-                    </p>
-                  </div>
-                  <div className="space-y-12">
-                    <p className="font-semibold text-slate-900">Penyusun Laporan</p>
-                    <p className="border-t border-slate-400 pt-1 text-slate-600">
-                      Muhammad Idham Chalid
-                    </p>
-                  </div>
-                </div>
-              </section>
-            )}
-          </main>
-        </div>
-      );
-    }
-
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+      ReactDOM.createRoot(document.getElementById('root')).render(e(App));
+    })();
   </script>
 </body>
 </html>
